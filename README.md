@@ -1,16 +1,19 @@
+Warning: This doesn't entirely work yet.
 
 ```
-cd minimal-edx-platform
+uv sync
 docker compose up
-cd ../edx-platform
-export LMS_CFG=/home/feanil/src/openedx/edx-platform/lms/envs/minimal.yml
-export CMS_CFG=/home/feanil/src/openedx/edx-platform/lms/envs/minimal.yml
 
-# Then you should be able to do any of the following
+# assumes that openedx-platform is a sibling dir.
+# TODO remove this assumption somehow
+export LMS_CFG=../opeendx-platform/lms/envs/minimal.yml
+export CMS_CFG="$LMS_CFG"
 
-python manage.py lms runserver
-python manage.py cms runserver
-pytest ...
+# Any of the following:
+DJANGO_SETTINGS_MODULE=openedx_site.settings_lms ./manage.py runserver
+DJANGO_SETTINGS_MODULE=openedx_site.settings_lms_dev ./manage.py runserver
+DJANGO_SETTINGS_MODULE=openedx_site.settings_cms ./manage.py runserver
+DJANGO_SETTINGS_MODULE=openedx_site.settings_cms_dev ./manage.py runserver
 ```
 
 
