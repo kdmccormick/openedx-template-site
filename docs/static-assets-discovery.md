@@ -87,6 +87,101 @@ every installed app's `static/` dir into `STATIC_ROOT` (`staticfiles`, default
 - Theming (`ThemeFilesFinder`, comprehensive themes) + `collectstatic` interplay.
 - `node_modules/@edx` is inserted into `STATICFILES_DIRS` (`lms/envs/common.py`).
 
+## Build-before-package ordering (layer 3, the hard part)
+
+Context: openedx-platform is **not on PyPI**; today the canonical way to run it
+is as a Django project invoked from source, and `pyproject.toml` exists mainly
+to register entry points. Publishing a wheel is the new goal. Since it has never
+been packaged, we are designing the release pipeline from scratch.
+
+The asset build has both a Python and a Node dependency (because
+`compile_sass.py` is a Python script):
+
+- `pip install -r requirements/edx/assets.txt` (libsass etc.)
+- node 24 (`.nvmrc`) + `npm ci` + `npm run build` (prod, not `build-dev`)
+
+Pre-package sequence: **assets.txt → `npm ci` → `npm run build` → build wheel.**
+(`collectstatic`/`migrate`/`runserver` are deploy/runtime, not packaging.)
+
+setuptools will not run Node, so "build assets, then package" must be enforced
+somewhere. Three options, increasing in magic:
+
+- **A. Explicit release pipeline** (Makefile target + CI workflow): documented
+  sequence, no backend magic. Risk: building a wheel without the asset step
+  ships an empty one.
+- **B. Verify-only build-backend shim** (CHOSEN, with A): a tiny in-tree PEP 517
+  backend wrapping `setuptools.build_meta` whose `build_wheel` *asserts* the
+  built artifacts exist (e.g. `common/static/bundles` non-empty, `lms/static/css`
+  present) and raises otherwise. Does NOT run Node — no node requirement at
+  wheel-build time — just refuses to produce a silently-broken wheel.
+- **C. Build-running backend shim**: same wrapper but actually runs
+  `npm ci && npm run build` in `build_wheel`. Fully enforcing even for
+  `pip install .`, but requires Node 24 wherever a wheel is built and makes
+  `pip install .` very heavy. Rejected as too much magic for the common case.
+
+**Decision: A + B.** Deterministic pipeline plus a cheap guardrail.
+
+Two follow-on decisions:
+
+1. **Wheel-only vs. sdist** — under discussion (see separate section / team
+   call). Build artifacts are gitignored, which interacts badly with the default
+   sdist→wheel-from-sdist flow.
+2. **`package-data` glob mechanics** — next deep-dive. setuptools attributes
+   each file to its nearest enclosing package, and recursive `**` globs over
+   deeply-nested static (esp. under `openedx/`) have sharp edges. Needs real
+   wheel-build experimentation (`unzip -l`), not trust in the globs.
+
+## Wheel-only vs. sdist
+
+Two PyPI artifact types: **sdist** (source; consumer builds it into a wheel at
+install time) and **wheel** (pre-built; unpacked as-is). openedx-platform is
+pure Python, so its wheel is universal (`py3-none-any`) — no per-platform build
+reason to need an sdist.
+
+The sdist trap: `python -m build` (no args) builds the sdist first, then builds
+the wheel *from the sdist*. The sdist is assembled from tracked/MANIFEST files,
+but our build artifacts are **gitignored** → not in the sdist → wheel comes out
+empty. A correct sdist would require either grafting built artifacts into a
+"source" dist (backwards, foot-gun) or a self-building sdist (Node at install
+time = option C). Neither is clean.
+
+**Decision: wheel-only to start.** Build the wheel directly with
+`python -m build --wheel` (or `pip wheel . --no-deps`), which builds from the
+source tree and skips the sdist round-trip entirely. Pairs with the B shim
+(guard `build_wheel`; `build_sdist` unsupported).
+
+- Cost: no source artifact on PyPI; tooling that requires an sdist
+  (`pip download` of sdist, some mirrors/distro/conda packagers) isn't served.
+  For openedx-site we control the install, so this is a non-issue for our goal.
+- Verify before org-wide adoption: Open edX uses hash-pinned requirements
+  (pip-tools); confirm nothing assumes an sdist exists (hash-pinning itself
+  works fine against wheels).
+- This is a genuine upstream policy decision (wheel-only is slightly unusual) —
+  raise with the team, don't just bake it in.
+
+## Editable installs and the dev story (orthogonal to sdist)
+
+`pip install -e path` is a THIRD install mode, not sdist and not wheel. Via
+PEP 660 it installs a redirect so `import lms` resolves to the **live source
+tree**; nothing is copied. So "no sdist" does NOT affect the dev story.
+
+Dev loop (vision): `pip install -e ../openedx-platform`, then:
+- Edit Python → reflected immediately (runserver autoreload).
+- Edit JS/Sass → `npm run build-dev` (or `npm run watch`) regenerates artifacts
+  in-place in the source `static/` dirs → served.
+
+Works because build-dev writes artifacts into the same source tree that editable
+points imports at.
+
+Caveats:
+- In editable mode the whole source dir is on the import path, so `package-data`
+  globs are effectively bypassed — **editable dev can mask packaging bugs**.
+  Mitigation: a CI job that builds the real wheel and smoke-tests it (e.g. runs
+  the `migrate` that started this effort) so packaging regressions surface.
+- The B shim should guard `build_wheel` only and NOT enforce on `build_editable`
+  — a dev may install editable before building assets, and we shouldn't block
+  that. Result: enforcement on release wheels, freedom in dev.
+
 ## Source dir sizes
 
 | dir | size | tracked files |
