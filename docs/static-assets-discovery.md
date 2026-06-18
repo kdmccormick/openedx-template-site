@@ -5,6 +5,35 @@ openedx-platform as a non-editable package; static assets are missing from the
 install (e.g. `./manage.py migrate` fails reading
 `lms/static/images/default-badges/honor.png`).
 
+## CURRENT DECISION (supersedes the "bundle the build artifacts" leanings below)
+
+We pivoted away from bundling the legacy *built* assets into the wheel, because
+they are large (webpack `bundles` alone is 73M) and on track for deletion within
+~a year. Three categories, not two:
+
+1. **Legacy *built* assets** — webpack bundles + compiled Sass→CSS. Regenerable,
+   gitignored, dying. → NOT shipped in the wheel.
+2. **openedx-platform's own *source* static** — badge PNGs, fonts, images,
+   vendor CSS, legacy JS/Sass *sources*. Checked into git; some required at
+   runtime/migrate time (the badge PNG that started this is here). → SHIPPED.
+3. **3rd-party app static** — from other pip packages; collected normally.
+
+Resulting model:
+
+- **Base wheel = Python + all checked-in *source* static, minus build outputs.**
+  Expressed simply by NOT running `npm run build` before
+  `python -m build --wheel` — the `"*" = ["static/**/*"]` glob only matches
+  on-disk files, so gitignored build outputs are naturally absent. Drops the 73M
+  bundles for free; `pip install` makes the badge migrate + source-asset
+  `collectstatic` work.
+- **Legacy built assets via a console script** shipped by openedx-platform
+  (e.g. `build_legacy_openedx_platform_frontends`) that runs the existing
+  `npm ci && npm run build[-dev]` pipeline in the install location, writing
+  artifacts in-place. Opt-in; evaporates when legacy is deleted upstream.
+- **Dev skips collectstatic** entirely (see dev workflow section). The
+  "collectstatic depends on the build" knot is a PROD-only concern, parked for
+  now (likely `PipelineFinder`/`webpack-stats.json` post-processing).
+
 ## Root cause of the missing-assets / migration failure
 
 `openedx-platform/pyproject.toml` declares almost no static as package data:
@@ -181,6 +210,35 @@ Caveats:
 - The B shim should guard `build_wheel` only and NOT enforce on `build_editable`
   — a dev may install editable before building assets, and we shouldn't block
   that. Result: enforcement on release wheels, freedom in dev.
+
+## Dev workflow (focus)
+
+Dev uses an **editable** install of openedx-platform, so the "installed" package
+*is* the live checkout — which already has `package.json`, webpack configs,
+`scripts/`, JS/Sass sources, and (after `npm ci`) `node_modules`. The
+wheel-only "ship the root build tooling" wrinkle therefore does NOT apply in dev.
+
+With `DEBUG=True`, Django's `staticfiles` finders serve static **live** from the
+source tree — **no `collectstatic` in dev**. So we only need the build artifacts
+written into the checkout's `static/` dirs, where `build-dev`/`watch` already
+write them.
+
+Invoking the build (two equivalent options):
+- (a) **Console script** (recommended, location-agnostic; identical command in
+  dev → editable checkout and prod → site-packages):
+  `build_legacy_openedx_platform_frontends --dev`
+- (b) **Just run npm in the checkout**: `npm ci && npm run build-dev`
+  (or `npm run watch` for the live-rebuild loop).
+
+```bash
+# openedx-site
+pip install -e ../openedx-platform
+build_legacy_openedx_platform_frontends --dev          # or: (cd ../openedx-platform && npm run build-dev)
+DJANGO_SETTINGS_MODULE=... ./manage.py lms runserver    # serves live, no collectstatic
+```
+
+Do NOT auto-run npm during `pip install` (rejected "option C" magic) — keep the
+asset build explicit.
 
 ## Source dir sizes
 
