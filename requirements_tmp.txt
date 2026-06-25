@@ -1,0 +1,8 @@
+# Will install this and openedx-platform (transitively).
+-e .
+
+# Manually install openedx-platform's deps.
+# Necessarily only because openedx-platform upstream does not yet
+# declare its deps in a way that uv/pip can see.
+# https://github.com/openedx/openedx-platform/pull/38769
+-r ../openedx-platform/requirements/edx/development.txt
