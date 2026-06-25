@@ -1,0 +1,7 @@
+{
+  "name": "openedx-template-site",
+  "version": "0.1.0",
+  "scripts": {
+    "build": "STATIC_ROOT_LMS=\"$(pwd)/staticfiles\" STATIC_ROOT_CMS=\"$(pwd)/staticfiles/studio\" bash -c 'cd ../openedx-platform && npm run build'"
+  }
+}
