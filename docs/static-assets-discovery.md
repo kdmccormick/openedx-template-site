@@ -1,5 +1,7 @@
 # Static assets discovery (first pass)
 
+*This is a living discovery written by Claude as we work through the challenge of getting openedx-platform static assets to be served through openedx-template-site.*
+
 Status: discovery notes, not a finalized plan. Context: openedx-site installs
 openedx-platform as a non-editable package; static assets are missing from the
 install (e.g. `./manage.py migrate` fails reading
@@ -239,6 +241,33 @@ DJANGO_SETTINGS_MODULE=... ./manage.py lms runserver    # serves live, no collec
 
 Do NOT auto-run npm during `pip install` (rejected "option C" magic) — keep the
 asset build explicit.
+
+### Where node_modules lives (decided: in the platform checkout)
+
+We considered relocating `node_modules` to openedx-site (mirroring how `.venv`
+lives in openedx-site). **Decision: keep `node_modules` in the openedx-platform
+checkout** (`npm ci` there, as the platform already expects; it's gitignored).
+openedx-site stays Python-only.
+
+Why not relocate it to site (the JS "editable install" idea):
+
+- **Node resolves `node_modules` by walking UP from each source file.**
+  openedx-platform is a *sibling* of openedx-site, and its webpack is hard-wired
+  to its own root (`resolve.modules: [__dirname, 'node_modules']`, outputs to
+  `__dirname/common/static/bundles`). Platform files can never see
+  `openedx-site/node_modules` without symlink trickery or rewriting resolve.
+- **devDependencies aren't installed transitively.** The build toolchain
+  (webpack + 24 devDeps) is in the platform's `devDependencies`. A
+  `file:`-linked dependency installs a package's `dependencies` but NOT its
+  `devDependencies`, so a site-owned `node_modules` wouldn't get webpack itself.
+- An npm **workspace at the common parent `openedx/`** would solve both cleanly
+  (hoisted tree that's an ancestor of platform files; installs devDeps; no
+  webpack changes — only a small `copy-node-modules.sh` path tweak). Kept as a
+  future option, but not worth it for a sunsetting legacy build.
+
+Net: given the legacy frontend build is being deleted within ~a year, investing
+in relocating its node_modules isn't worth the fragility. `npm ci` in the
+platform checkout it is.
 
 ## Source dir sizes
 
