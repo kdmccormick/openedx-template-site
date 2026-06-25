@@ -1,1 +1,1 @@
-from cms.envs.production import *
+from .settings_cms import *

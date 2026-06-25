@@ -1,1 +1,1 @@
-from lms.envs.production import *
+from .settings_lms import *
