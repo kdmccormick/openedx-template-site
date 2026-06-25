@@ -15,5 +15,10 @@ dependencies = [
     "setuptools<82",
 ]
 
+[project.optional-dependencies]
+development = [
+    "openedx-platform[development]"
+]
+
 [tool.uv.sources]
-openedx-platform = { path = "../openedx-platform" }
+openedx-platform = { path = "../openedx-platform", editable = true }
