@@ -13,7 +13,7 @@ from path import Path
 def main():
     """Run administrative tasks."""
     repo_root = Path(__file__).parent
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'openedx_site.settings_lms')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'openedx_site.settings_lms_dev')  # @@TODO settings_lms
     os.environ.setdefault('STATIC_ROOT_LMS', repo_root / "staticfiles")
     os.environ.setdefault('STATIC_ROOT_CMS', repo_root / "staticfiles" / "studio")
     os.environ.setdefault('LMS_CFG', '../openedx-platform/lms/envs/minimal.yml')
