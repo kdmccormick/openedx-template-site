@@ -7,14 +7,14 @@ for envvar in \
         "STATIC_ROOT_CMS" \
         "LMS_CFG" \
         "CMS_CFG" ; do
-    echo "$envvar=${!envvar}"
+    >&2 echo "$envvar=${!envvar}"
 done
 
 case "$DJANGO_SETTINGS_MODULE" in
     *lms*) system="lms" ;;
     *cms*) system="cms" ;;
     *)
-        echo "could not determine system for settings $DJANGO_SETTINGS_MODULE"
+        >&2 echo "could not determine system for settings $DJANGO_SETTINGS_MODULE"
         exit 1
         ;;
 esac
