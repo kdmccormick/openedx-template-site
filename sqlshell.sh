@@ -1,9 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-# Open a root MySQL shell inside the mysql container.
-source "$(dirname "$0")/env"
-
 docker compose exec mysql \
     mysql \
     --user="$MYSQL_ROOT_USERNAME" \

@@ -1,0 +1,31 @@
+# Environment variables for this repo.
+# NOT SAFE FOR PRODUCTION. THIS IS JUST A DEV ENV FOR NOW. @@TODO
+#
+# Plain KEY=VALUE lines and comments only, so this file works both as a docker
+# compose `env_file` and as something `env` can source. Don't add `export` or
+# shell logic here -- put that in `env`.
+
+# MySQL
+MYSQL_HOST=127.0.0.1
+MYSQL_PORT=3306
+MYSQL_DATABASE=edxapp
+MYSQL_USER=edxapp001
+MYSQL_PASSWORD=password
+MYSQL_ROOT_USERNAME=root
+MYSQL_ROOT_PASSWORD=password
+
+# Config yamls, relative to openedx-platform root.
+LMS_CFG=lms/envs/minimal.yml
+CMS_CFG="$LMS_CFG"
+
+# Default django settings to LMS dev.
+# Override it to DJANGO_SETTINGS_MODULE=openedx_site.settings_cms_dev for CMS
+# @@TODO in the future, default to this to prod, not dev.
+DJANGO_SETTINGS_MODULE=openedx_site.settings_lms_dev
+
+# Static asset collection dir.
+# @@TODO I think things break if this is put anywhere else.
+#        Need to figure out how to make it safely configurable.
+#        Would like to move it within openedx-template-site by default.
+STATIC_ROOT_LMS="$HOME/openedx/staticfiles"
+STATIC_ROOT_CMS="$STATIC_ROOT_LMS/studio"

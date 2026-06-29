@@ -1,7 +1,7 @@
 services:
   mysql:
     image: mysql:8.4
-    env_file: env
+    env_file: env_vars
     ports:
       - 3306:3306
     volumes:
