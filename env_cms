@@ -1,0 +1,15 @@
+# Source this into your shell to set up your CMS dev environment:
+#
+#     . env_cms
+#
+# It starts with the base LMS dev env and adds in env_vars_cms.
+
+# Export every assignment in env_vars without needing `export` on each line.
+# `set -a` (allexport) keeps env_vars as plain KEY=VALUE for docker compose.
+set -a
+. ./env
+. ./env_vars_cms
+set +a
+
+# Activate the virtualenv for convenience.
+. .venv/bin/activate

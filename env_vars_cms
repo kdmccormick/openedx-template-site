@@ -1,0 +1,4 @@
+# Environment var overrides for CMS
+# Keep this minimal. Put as much as possible in env.
+
+DJANGO_SETTINGS_MODULE=openedx_site.settings_cms_dev
