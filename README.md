@@ -1,25 +1,35 @@
 Warning: This doesn't entirely work yet. Issues:
 
 * Assumes openedx-platform is cloned as a sibling directory.
-* Assumes openedx-platform is on this PR's branch: https://github.com/openedx/openedx-platform/pull/38769
 * No frontends.
 * Not fully tested.
 
 ```
 # Create a venv using your preferred method
 uv venv --python python3.12
-source .venv/bin/activate
+
+# Get env vars (also sources .venv, if you put it there)
+source env
 
 # Install deps
-uv sync  # Or: `pip install .`
+uv pip install -r requirements_tmp.txt  # future: `uv sync .`
 
-# Run supporting services
-docker compose up
-
-# Set shell environment vars.
-# Can replace lms with lms_dev, cms_dev, or cms.
-. ./env lms
-
+# Provision data
+docker compose -d up
 ./manage.py migrate
-./manage.py runserver
+./provision.sh
+docker compose down  # if you're done
+
+# Whenever you want to run it:
+# In three different shells:
+docker compose up
+./manage.py runserver  # LMS
+DJANGO_SETTINGS_MODULE=openex_site.settings_cms_dev ./manage.py runserver # CMS
 ```
+
+## Operating your site with Open edX Site Buddy
+
+Running this site in [Claude Code](https://claude.com/claude-code)? Type
+`/site-buddy` to bring up **Open edX Site Buddy** — an assistant for day-to-day
+admin tasks (changing settings, and more over time) that explains every command
+it runs as it goes.
