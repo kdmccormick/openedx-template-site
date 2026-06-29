@@ -18,6 +18,7 @@ a work-in-progress *project*.
 * Use `rg`, not `grep`.
 * In settings overrides, read/write feature toggles as **top-level settings** (`ENABLE_FOO = True`), never `FEATURES["ENABLE_FOO"]` — the latter is deprecated and support will be removed. The two are kept equivalent/live-synced by `FEATURES = FeaturesProxy(globals())` near the top of each root settings module; don't remove that line.
 * Don't test things out unless asked. When asked, source `env` (loads `env_vars` and activates `.venv`). Each shell invocation is fresh and shell state does NOT persist between commands, so prefix every `./manage.py` (or other env-dependent) call with it in the *same* command, e.g. `source env && ./manage.py ...`. Without it, `DJANGO_SETTINGS_MODULE` is unset and manage.py errors with "could not determine system for settings".
+  * For CMS/Studio management commands, source `env_cms` instead of `env` (it layers `env_vars_cms` on top of the base env, switching `DJANGO_SETTINGS_MODULE` to `openedx_site.settings_cms_dev`). LMS is the default.
 * When you learn something significant that doesn't fit in a code comment, write it up in `docs/`.
 * Commit often.
 

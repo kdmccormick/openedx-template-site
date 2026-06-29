@@ -18,6 +18,12 @@ MYSQL_ROOT_PASSWORD=password
 LMS_CFG=lms/envs/minimal.yml
 CMS_CFG="$LMS_CFG"
 
+# CMS (Studio) SSO OAuth2 client. Studio authenticates against the LMS via
+# social-auth (edx-oauth2). These must match between the DOT application
+# created in the LMS (see provision.sh) and the CMS settings that present them.
+CMS_SSO_OAUTH2_KEY=cms-sso-dev
+CMS_SSO_OAUTH2_SECRET=cms-sso-dev-secret
+
 # Default django settings to LMS dev.
 # Override it to DJANGO_SETTINGS_MODULE=openedx_site.settings_cms_dev for CMS
 # @@TODO in the future, default to this to prod, not dev.

@@ -9,33 +9,16 @@ from .shared_settings_overrides_dev import *
 # live-updating. The former is a deprecated syntax for the latter.
 FEATURES = FeaturesProxy(globals())
 
+# We serve the LMS from local.openedx.io:8000 rather than the devstack default
+# of localhost:18000. Host URLs and the cross-domain cookie settings are shared
+# with the CMS and live in shared_settings_overrides_dev.py; here we add only
+# the LMS-specific host wiring. Without trusting our real origin for CSRF and
+# allowing it as a redirect target, the login POST 403s and bounces.
 ALLOWED_HOSTS.append("local.openedx.io")
 ALLOWED_HOSTS.append("local.openedx.io:8000")
-
-# We serve the LMS from local.openedx.io:8000 rather than the devstack
-# default of localhost:18000. Point the host-derived settings at the real
-# host so that login works: otherwise the login POST's Origin is not in
-# CSRF_TRUSTED_ORIGINS and Django rejects it with a 403, silently bouncing
-# the user back to the login page.
-LMS_BASE = "local.openedx.io:8000"
-LMS_ROOT_URL = "http://local.openedx.io:8000"
 SITE_NAME = LMS_BASE
-CSRF_TRUSTED_ORIGINS.append("http://local.openedx.io:8000")
-LOGIN_REDIRECT_WHITELIST.append("local.openedx.io:8000")
-
-# We serve over plain HTTP in dev, so cookies cannot be marked Secure.
-# The base config uses SESSION_COOKIE_SAMESITE = "None" (for MFE/embedding,
-# which assumes HTTPS), but browsers reject a SameSite=None cookie that is
-# not also Secure -- so the session cookie gets silently dropped and login
-# bounces back to the login page. Use "Lax" for HTTP dev, matching Tutor.
-SESSION_COOKIE_DOMAIN = "local.openedx.io"
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
-SESSION_COOKIE_SAMESITE = "Lax"
-# Share the CSRF cookie across the parent domain too, so the Authn MFE on the
-# apps.local.openedx.io subdomain and the LMS use a single, unambiguous
-# csrftoken cookie (avoids host-only vs. domain duplicate-cookie mismatches).
-CSRF_COOKIE_DOMAIN = "local.openedx.io"
+CSRF_TRUSTED_ORIGINS.append(LMS_ROOT_URL)
+LOGIN_REDIRECT_WHITELIST.append(LMS_BASE)
 
 # --- Authn micro-frontend (../frontend-app-authn) -------------------------
 # Use the modern Authn MFE instead of the legacy LMS login page. The MFE runs
@@ -56,11 +39,9 @@ AUTHN_MICROFRONTEND_DOMAIN = "apps.local.openedx.io/authn"
 
 # (b)+(c) The MFE makes credentialed cross-origin calls to the LMS (CSRF token,
 # login_session, user info), so whitelist its origin for CORS + CSRF and allow
-# it as a redirect target. CORS_ORIGIN_WHITELIST is a tuple in devstack, so
-# rebuild it as a list rather than appending.
-CORS_ORIGIN_ALLOW_ALL = False
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_INSECURE = True
+# it as a redirect target. (The CORS base flags are shared; see
+# shared_settings_overrides_dev.py.) CORS_ORIGIN_WHITELIST is a tuple in
+# devstack, so rebuild it as a list rather than appending.
 CORS_ORIGIN_WHITELIST = list(CORS_ORIGIN_WHITELIST) + [AUTHN_MFE_ORIGIN]
 CSRF_TRUSTED_ORIGINS.append(AUTHN_MFE_ORIGIN)
 LOGIN_REDIRECT_WHITELIST.append("apps.local.openedx.io:1999")
