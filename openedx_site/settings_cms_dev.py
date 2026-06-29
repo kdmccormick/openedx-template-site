@@ -3,6 +3,10 @@ from openedx.core.lib.derived import derive_settings
 
 from .shared_settings_overrides_dev import *
 
+# Ensure that reads and writes to FEATURES['<BLAH>'] match top-level settings <BLAH>,
+# live-updating. The former is a deprecated syntax for the latter.
+FEATURES = FeaturesProxy(globals())
+
 ALLOWED_HOSTS.append("studio.local.openedx.io")
 ALLOWED_HOSTS.append("studio.local.openedx.io:8001")
 
