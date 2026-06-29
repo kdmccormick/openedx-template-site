@@ -1,0 +1,7 @@
+#!/bin/bash
+
+app_path="../frontend-app-$1"
+shift
+set -x
+cd "$app_path" && "$@"
+set +x
