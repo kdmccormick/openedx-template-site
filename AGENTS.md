@@ -16,7 +16,7 @@ a work-in-progress *project*.
   * `../openedx-platform` and `../frontend-app-*` — upstream sources. Huge; they'll fill your context window, so don't delve deep unless necessary.
   * `../../overhangio/tutor` and `../../overhangio/tutor-*` — Tutor and its plugins configure/run Open edX. Treat as extended documentation; we're building something smaller and simpler, so don't copy Tutor patterns.
 * Use `rg`, not `grep`.
-* Don't test things out unless asked. When asked, first source `env` (loads `env_vars` and activates `.venv`).
+* Don't test things out unless asked. When asked, source `env` (loads `env_vars` and activates `.venv`). Each shell invocation is fresh and shell state does NOT persist between commands, so prefix every `./manage.py` (or other env-dependent) call with it in the *same* command, e.g. `source env && ./manage.py ...`. Without it, `DJANGO_SETTINGS_MODULE` is unset and manage.py errors with "could not determine system for settings".
 * When you learn something significant that doesn't fit in a code comment, write it up in `docs/`.
 * Commit often.
 
