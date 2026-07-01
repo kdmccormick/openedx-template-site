@@ -28,3 +28,8 @@ services:
     image: memcached
     ports:
       - 11211:11211
+  meilisearch:
+    image: getmeili/meilisearch:v1.8.4
+    env_file: env_vars
+    ports:
+      - 7700:7700

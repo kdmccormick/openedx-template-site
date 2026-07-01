@@ -1,6 +1,8 @@
 # This is not a root settings module itself, but it has a few
 # settings overrides that we want consistent everwhere.
 
+import hashlib
+import hmac
 import os
 import warnings
 
@@ -108,3 +110,22 @@ CORS_ORIGIN_WHITELIST = list(MFE_ORIGINS)
 # (otherwise-ignored) dir in the repo so it always exists -- no host mutation
 # from settings needed.
 GITHUB_REPO_ROOT = os.path.join(_REPO_ROOT, "tmp-data")
+
+# Meilisearch (Studio content search + tagging, and course search). Runs in the
+# compose stack on localhost:7700. MEILISEARCH_URL is used by the python backend;
+# MEILISEARCH_PUBLIC_URL is what the browser hits directly (same host here). The
+# backend authenticates with an API key whose value Meilisearch derives
+# deterministically from the master key + the key's uid (HMAC-SHA256); we compute
+# the same value here, and provision.sh creates the key with that uid. The
+# platform then looks the key up by value to mint per-user tenant tokens for the
+# browser (see content/search/api.py).
+SEARCH_ENGINE = "search.meilisearch.MeilisearchEngine"
+MEILISEARCH_ENABLED = True
+MEILISEARCH_URL = "http://localhost:7700"
+MEILISEARCH_PUBLIC_URL = "http://localhost:7700"
+MEILISEARCH_INDEX_PREFIX = os.environ.get("MEILISEARCH_INDEX_PREFIX", "openedx_")
+MEILISEARCH_API_KEY = hmac.new(
+    os.environ["MEILI_MASTER_KEY"].encode(),
+    os.environ["MEILISEARCH_API_KEY_UID"].encode(),
+    hashlib.sha256,
+).hexdigest()

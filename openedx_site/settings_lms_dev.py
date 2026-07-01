@@ -79,10 +79,17 @@ MFE_CONFIG.update({
     "ACCOUNT_SETTINGS_URL": ACCOUNT_MICROFRONTEND_URL,
     "ACCOUNT_PROFILE_URL": f"{_MFE}:1995/profile",
     "DISCUSSIONS_MFE_BASE_URL": DISCUSSIONS_MICROFRONTEND_URL,
+    # Authoring MFE feature flags (values are strings, as the MFE expects).
+    # The search/tagging ones require Meilisearch, which we now run (see
+    # shared_settings_overrides_dev.py + provision.sh).
+    "ENABLE_ASSETS_PAGE": "true",
+    "ENABLE_HOME_PAGE_COURSE_API_V2": "true",
+    "ENABLE_PROGRESS_GRAPH_SETTINGS": "true",
+    "ENABLE_TAGGING_TAXONOMY_PAGES": "true",
+    "ENABLE_UNIT_PAGE": "true",
+    "ENABLE_LEGACY_LIBRARY_MIGRATOR": "true",
+    "MEILISEARCH_ENABLED": "true",
 })
-# NOTE: the authoring MFE's search/tagging feature flags (MEILISEARCH_ENABLED,
-# ENABLE_TAGGING_TAXONOMY_PAGES, etc.) are intentionally omitted -- they require
-# Meilisearch, which we don't run yet. Add them once search is stood up.
 
 # Disable enterprise integration. Without this, the post-login redirect calls
 # the Enterprise API at the devstack-default internal URL (localhost:18000),

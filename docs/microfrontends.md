@@ -38,8 +38,8 @@ authoring, including libraries. There is no separate "library authoring" MFE.
 The per-MFE URL settings (`*_MICROFRONTEND_URL`, plus `MFE_CONFIG` entries) live
 in `settings_lms_dev.py`; only authoring needs a CMS-side URL. The authoring
 MFE's search/tagging feature flags (`MEILISEARCH_ENABLED`,
-`ENABLE_TAGGING_TAXONOMY_PAGES`, …) are intentionally omitted until we run
-Meilisearch.
+`ENABLE_TAGGING_TAXONOMY_PAGES`, …) are on now that Meilisearch is set up — see
+`search-meilisearch.md`.
 
 ## Runtime config comes from the LMS
 

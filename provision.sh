@@ -35,3 +35,31 @@ UserProfile.objects.get_or_create(
     --scopes user_id \
     --update \
     cms-sso-dev cms
+
+# Create the Meilisearch backend API key (idempotent), scoped to our index
+# prefix. Its value is derived by Meilisearch from MEILI_MASTER_KEY + this uid,
+# which is the same value settings_shared derives for MEILISEARCH_API_KEY. This
+# is a plain Meilisearch call (no Django), so it runs regardless of system.
+python -c "
+import os, meilisearch
+client = meilisearch.Client('http://localhost:7700', os.environ['MEILI_MASTER_KEY'])
+uid = os.environ['MEILISEARCH_API_KEY_UID']
+prefix = os.environ['MEILISEARCH_INDEX_PREFIX']
+try:
+    client.get_key(uid)
+    print('Meilisearch API key already exists')
+except meilisearch.errors.MeilisearchApiError:
+    client.create_key({'name': 'Open edX backend', 'uid': uid, 'actions': ['*'],
+                       'indexes': [prefix + '*'], 'expiresAt': None})
+    print('Created Meilisearch API key')
+"
+
+# Create and populate the Studio search index in Meilisearch. The index is
+# (re)built by content.search's post_migrate signal, which authenticates with
+# the API key created just above -- so the migrate that ran before provision
+# (when the key didn't exist yet) failed soft and skipped it. Re-running migrate
+# here, with the key present, reconciles the index; reindex_studio then
+# populates it. Both are CMS commands, so override the settings module for them
+# (provision otherwise runs as LMS).
+DJANGO_SETTINGS_MODULE=openedx_site.settings_cms_dev ./manage.py migrate
+DJANGO_SETTINGS_MODULE=openedx_site.settings_cms_dev ./manage.py reindex_studio
