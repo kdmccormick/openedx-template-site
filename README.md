@@ -24,7 +24,7 @@ docker compose down  # if you're done
 # In three different shells:
 docker compose up
 ./manage.py runserver  # LMS
-DJANGO_SETTINGS_MODULE=openex_site.settings_cms_dev ./manage.py runserver # CMS
+source env_cms && ./manage.py runserver # CMS
 ```
 
 ## Operating your site with Open edX Site Buddy
