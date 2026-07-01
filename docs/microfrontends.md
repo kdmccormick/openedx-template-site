@@ -7,20 +7,39 @@ Status: authn, learning, and authoring MFEs wired and working (auth-wise) as of
 this writing. See also `authn-mfe-login.md` (LMS login) and `studio-sso-login.md`
 (Studio SSO).
 
-## The MFEs we run (dev)
+## The MFE roster
 
-Each is served by its own `npm run dev` on a subdomain of the shared parent
-domain `local.openedx.io`, under a `/<name>` public path:
+The LMS and CMS are *configured* to talk to the full tutor-mfe roster below.
+You don't have to run them all at once — configuring the IDAs for an MFE and
+actually running that MFE (`npm run dev`) are independent. Each MFE is served on
+a subdomain of the shared parent domain `local.openedx.io`, under a `/<name>`
+public path. Ports mirror tutor-mfe.
 
-| MFE | repo | URL |
-|-----|------|-----|
-| Authn | `frontend-app-authn` | `http://apps.local.openedx.io:1999/authn` |
-| Learning | `frontend-app-learning` | `http://apps.local.openedx.io:2000/learning` |
-| Authoring | `frontend-app-authoring` | `http://apps.local.openedx.io:2001/authoring` |
+| MFE | repo | port | path |
+|-----|------|------|------|
+| Communications | `frontend-app-communications` | 1984 | `/communications` |
+| ORA Grading | `frontend-app-ora-grading` | 1993 | `/ora-grading` |
+| Gradebook | `frontend-app-gradebook` | 1994 | `/gradebook` |
+| Profile | `frontend-app-profile` | 1995 | `/profile` |
+| Learner Dashboard | `frontend-app-learner-dashboard` | 1996 | `/learner-dashboard` |
+| Account | `frontend-app-account` | 1997 | `/account` |
+| Authn | `frontend-app-authn` | 1999 | `/authn` |
+| Learning | `frontend-app-learning` | 2000 | `/learning` |
+| Authoring | `frontend-app-authoring` | 2001 | `/authoring` |
+| Discussions | `frontend-app-discussions` | 2002 | `/discussions` |
+
+Verified end-to-end so far: authn, authoring (learning pending course content).
+The rest are configured but not yet exercised.
 
 "Authoring" was historically the "course authoring" MFE (hence the
 `COURSE_AUTHORING_MICROFRONTEND_URL` setting name); it now handles *all*
 authoring, including libraries. There is no separate "library authoring" MFE.
+
+The per-MFE URL settings (`*_MICROFRONTEND_URL`, plus `MFE_CONFIG` entries) live
+in `settings_lms_dev.py`; only authoring needs a CMS-side URL. The authoring
+MFE's search/tagging feature flags (`MEILISEARCH_ENABLED`,
+`ENABLE_TAGGING_TAXONOMY_PAGES`, …) are intentionally omitted until we run
+Meilisearch.
 
 ## Runtime config comes from the LMS
 

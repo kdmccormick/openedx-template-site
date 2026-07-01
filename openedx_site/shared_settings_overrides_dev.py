@@ -84,10 +84,19 @@ CORS_ALLOW_INSECURE = True
 # CORS (harmless on an IDA that a given MFE doesn't call). CSRF-trust and
 # login-redirect whitelisting are list *mutations* and so are done per-system
 # (see settings_{lms,cms}_dev.py), using MFE_ORIGINS / MFE_HOSTS from here.
+# Ports match tutor-mfe's canonical MFE roster. We configure the IDAs to talk
+# to all of them; we don't have to run them all at once.
 MFE_ORIGINS = [
+    "http://apps.local.openedx.io:1984",  # frontend-app-communications
+    "http://apps.local.openedx.io:1993",  # frontend-app-ora-grading
+    "http://apps.local.openedx.io:1994",  # frontend-app-gradebook
+    "http://apps.local.openedx.io:1995",  # frontend-app-profile
+    "http://apps.local.openedx.io:1996",  # frontend-app-learner-dashboard
+    "http://apps.local.openedx.io:1997",  # frontend-app-account
     "http://apps.local.openedx.io:1999",  # frontend-app-authn
     "http://apps.local.openedx.io:2000",  # frontend-app-learning
     "http://apps.local.openedx.io:2001",  # frontend-app-authoring
+    "http://apps.local.openedx.io:2002",  # frontend-app-discussions
 ]
 MFE_HOSTS = [origin.split("//", 1)[1] for origin in MFE_ORIGINS]  # "host:port"
 CORS_ORIGIN_WHITELIST = list(MFE_ORIGINS)

@@ -28,23 +28,42 @@ LOGIN_REDIRECT_WHITELIST.append(LMS_BASE)
 CSRF_TRUSTED_ORIGINS += MFE_ORIGINS
 LOGIN_REDIRECT_WHITELIST += MFE_HOSTS
 
-# Use the modern Authn MFE instead of the legacy LMS login page: redirect
-# /login + /register to it. The redirect is gated on this toggle (see
-# user_authn/toggles.py: should_redirect_to_authn_microfrontend).
+# Per-MFE URL settings. Host is apps.local.openedx.io:<port>; ports and paths
+# mirror tutor-mfe. We point the LMS at every MFE even though not all are run at
+# once. (These are the *_MICROFRONTEND_URL settings the LMS reads to link out to
+# the MFEs; whether an MFE happens to be running is a separate concern.)
+_MFE = "http://apps.local.openedx.io"
+
+# Authn MFE: redirect /login + /register to it instead of the legacy LMS login
+# page. The redirect is gated on this toggle (see user_authn/toggles.py:
+# should_redirect_to_authn_microfrontend).
 ENABLE_AUTHN_MICROFRONTEND = True
-AUTHN_MICROFRONTEND_URL = "http://apps.local.openedx.io:1999/authn"
+AUTHN_MICROFRONTEND_URL = f"{_MFE}:1999/authn"
 AUTHN_MICROFRONTEND_DOMAIN = "apps.local.openedx.io/authn"
 
-# Serve runtime config to the MFE via the LMS config API at /api/mfe_config/v1,
-# so micro-frontends fetch their config from the LMS at startup rather than
-# baking it in at build time (off by default in the platform). Low cache
-# timeout per Tutor's note: the view is cheap and a long timeout causes
-# stale-config bugs.
+ACCOUNT_MICROFRONTEND_URL = f"{_MFE}:1997/account/"
+PROFILE_MICROFRONTEND_URL = f"{_MFE}:1995/profile/u/"
+LEARNER_HOME_MICROFRONTEND_URL = f"{_MFE}:1996/learner-dashboard/"
+COMMUNICATIONS_MICROFRONTEND_URL = f"{_MFE}:1984/communications"
+DISCUSSIONS_MICROFRONTEND_URL = f"{_MFE}:2002/discussions"
+DISCUSSIONS_MFE_FEEDBACK_URL = None
+WRITABLE_GRADEBOOK_URL = f"{_MFE}:1994/gradebook"
+ORA_GRADING_MICROFRONTEND_URL = f"{_MFE}:1993/ora-grading"
+# Learning MFE. NETLOC is computed from the URL at devstack-import time, so it
+# must be set explicitly alongside the URL override.
+LEARNING_MICROFRONTEND_URL = f"{_MFE}:2000/learning"
+LEARNING_MICROFRONTEND_NETLOC = "apps.local.openedx.io:2000"
+
+# Serve runtime config to the MFEs via the LMS config API at /api/mfe_config/v1,
+# so they fetch config from the LMS at startup rather than baking it in at build
+# time (off by default in the platform). Low cache timeout per Tutor's note: the
+# view is cheap and a long timeout causes stale-config bugs.
 ENABLE_MFE_CONFIG_API = True
 MFE_CONFIG_API_CACHE_TIMEOUT = 1
 MFE_CONFIG.update({
     "BASE_URL": "apps.local.openedx.io",
     "LMS_BASE_URL": LMS_ROOT_URL,
+    "STUDIO_BASE_URL": CMS_ROOT_URL,
     "LOGIN_URL": f"{LMS_ROOT_URL}/login",
     "LOGOUT_URL": f"{LMS_ROOT_URL}/logout",
     "CSRF_TOKEN_API_PATH": "/csrf/api/v1/token",
@@ -54,19 +73,16 @@ MFE_CONFIG.update({
     "LANGUAGE_PREFERENCE_COOKIE_NAME": "openedx-language-preference",
     "MARKETING_SITE_BASE_URL": LMS_ROOT_URL,
     "SITE_NAME": "Open edX",
-    # Studio + authoring MFE, so frontend-app-authoring (which pulls its config
-    # from this API) talks to the right Studio rather than the devstack default.
-    "STUDIO_BASE_URL": CMS_ROOT_URL,
-    "COURSE_AUTHORING_MICROFRONTEND_URL": "http://apps.local.openedx.io:2001/authoring",
-    "LEARNING_BASE_URL": "http://apps.local.openedx.io:2000/learning",
+    "DISABLE_ENTERPRISE_LOGIN": True,
+    "COURSE_AUTHORING_MICROFRONTEND_URL": f"{_MFE}:2001/authoring",
+    "LEARNING_BASE_URL": f"{_MFE}:2000",
+    "ACCOUNT_SETTINGS_URL": ACCOUNT_MICROFRONTEND_URL,
+    "ACCOUNT_PROFILE_URL": f"{_MFE}:1995/profile",
+    "DISCUSSIONS_MFE_BASE_URL": DISCUSSIONS_MICROFRONTEND_URL,
 })
-
-# Learning MFE (../frontend-app-learning): the LMS links learners to it for
-# courseware. LMS-only; point it at our host (devstack default is
-# localhost:2000). NETLOC is computed from the URL at devstack-import time, so
-# it also needs updating.
-LEARNING_MICROFRONTEND_URL = "http://apps.local.openedx.io:2000/learning"
-LEARNING_MICROFRONTEND_NETLOC = "apps.local.openedx.io:2000"
+# NOTE: the authoring MFE's search/tagging feature flags (MEILISEARCH_ENABLED,
+# ENABLE_TAGGING_TAXONOMY_PAGES, etc.) are intentionally omitted -- they require
+# Meilisearch, which we don't run yet. Add them once search is stood up.
 
 # Disable enterprise integration. Without this, the post-login redirect calls
 # the Enterprise API at the devstack-default internal URL (localhost:18000),
