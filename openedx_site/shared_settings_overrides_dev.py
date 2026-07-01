@@ -1,10 +1,15 @@
 # This is not a root settings module itself, but it has a few
 # settings overrides that we want consistent everwhere.
 
+import os
 import warnings
 
 from openedx.core.lib.derived import Derived
 from openedx.envs.common import BLOCK_STRUCTURES_SETTINGS
+
+# Repo root (this file lives in <repo>/openedx_site/). Computed from __file__
+# rather than the CWD, because manage.py runs with CWD=../openedx-platform.
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # Silences a Swagger (API docs) depr warning that doesn't apply to us.
@@ -86,3 +91,11 @@ MFE_ORIGINS = [
 ]
 MFE_HOSTS = [origin.split("//", 1)[1] for origin in MFE_ORIGINS]  # "host:port"
 CORS_ORIGIN_WHITELIST = list(MFE_ORIGINS)
+
+# Course import unpacks the uploaded .tar.gz into a scratch dir under
+# GITHUB_REPO_ROOT (upstream default: ENV_ROOT/data, which doesn't exist here).
+# The importer uses os.mkdir (not makedirs), so a missing parent 500s the
+# import. Point it at the repo-local tmp-data/, whose own .gitignore keeps the
+# (otherwise-ignored) dir in the repo so it always exists -- no host mutation
+# from settings needed.
+GITHUB_REPO_ROOT = os.path.join(_REPO_ROOT, "tmp-data")
