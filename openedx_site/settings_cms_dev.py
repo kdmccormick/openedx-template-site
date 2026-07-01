@@ -33,6 +33,17 @@ SOCIAL_AUTH_REDIRECT_IS_HTTPS = False  # scheme is included in the redirect_uri
 FRONTEND_LOGIN_URL = LMS_ROOT_URL + "/login"
 FRONTEND_REGISTER_URL = LMS_ROOT_URL + "/register"
 
+# --- Authoring MFE (../frontend-app-authoring) ----------------------------
+# Studio redirects course-authoring pages to this MFE (formerly the "course
+# authoring" MFE; all authoring, including libraries, now lives here). The MFE
+# makes credentialed calls back to Studio, so trust MFE origins for CSRF and
+# allow them as redirect targets. (CORS whitelisting of MFE_ORIGINS is shared;
+# see shared_settings_overrides_dev.py. The MFE pulls its runtime config from
+# the LMS MFE config API, so its URLs are configured there.)
+COURSE_AUTHORING_MICROFRONTEND_URL = "http://apps.local.openedx.io:2001/authoring"
+CSRF_TRUSTED_ORIGINS += MFE_ORIGINS
+LOGIN_REDIRECT_WHITELIST += MFE_HOSTS
+
 # @@TODO: Put this back when we are running from openedx-template-site
 # instead of openedx-platform.
 ## /path/to/openedx-template-site/staticfiles

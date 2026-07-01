@@ -20,31 +20,20 @@ SITE_NAME = LMS_BASE
 CSRF_TRUSTED_ORIGINS.append(LMS_ROOT_URL)
 LOGIN_REDIRECT_WHITELIST.append(LMS_BASE)
 
-# --- Authn micro-frontend (../frontend-app-authn) -------------------------
-# Use the modern Authn MFE instead of the legacy LMS login page. The MFE runs
-# on its own origin (apps.local.openedx.io:1999, a subdomain of the cookie
-# domain set above), so the LMS must:
-#   (a) redirect /login + /register to the MFE,
-#   (b) trust the MFE origin for credentialed CORS and for CSRF, and
-#   (c) allow the MFE as a post-login redirect target.
-# Mirrors Tutor's generated dev config; see
-# /Users/kyle/tutor-root/env/apps/openedx/settings/lms/development.py
-AUTHN_MFE_ORIGIN = "http://apps.local.openedx.io:1999"
+# --- Micro-frontends ------------------------------------------------------
+# The MFEs run on their own origins (apps.local.openedx.io:<port>, subdomains
+# of the cookie domain) and make credentialed cross-origin calls to the LMS, so
+# trust every MFE origin for CSRF and allow it as a post-login redirect target.
+# (CORS whitelisting of MFE_ORIGINS is shared; see shared_settings_overrides_dev.py.)
+CSRF_TRUSTED_ORIGINS += MFE_ORIGINS
+LOGIN_REDIRECT_WHITELIST += MFE_HOSTS
 
-# (a) Redirect login/registration to the MFE. This toggle gates the redirect
-# (see user_authn/toggles.py: should_redirect_to_authn_microfrontend).
+# Use the modern Authn MFE instead of the legacy LMS login page: redirect
+# /login + /register to it. The redirect is gated on this toggle (see
+# user_authn/toggles.py: should_redirect_to_authn_microfrontend).
 ENABLE_AUTHN_MICROFRONTEND = True
-AUTHN_MICROFRONTEND_URL = f"{AUTHN_MFE_ORIGIN}/authn"
+AUTHN_MICROFRONTEND_URL = "http://apps.local.openedx.io:1999/authn"
 AUTHN_MICROFRONTEND_DOMAIN = "apps.local.openedx.io/authn"
-
-# (b)+(c) The MFE makes credentialed cross-origin calls to the LMS (CSRF token,
-# login_session, user info), so whitelist its origin for CORS + CSRF and allow
-# it as a redirect target. (The CORS base flags are shared; see
-# shared_settings_overrides_dev.py.) CORS_ORIGIN_WHITELIST is a tuple in
-# devstack, so rebuild it as a list rather than appending.
-CORS_ORIGIN_WHITELIST = list(CORS_ORIGIN_WHITELIST) + [AUTHN_MFE_ORIGIN]
-CSRF_TRUSTED_ORIGINS.append(AUTHN_MFE_ORIGIN)
-LOGIN_REDIRECT_WHITELIST.append("apps.local.openedx.io:1999")
 
 # Serve runtime config to the MFE via the LMS config API at /api/mfe_config/v1,
 # so micro-frontends fetch their config from the LMS at startup rather than
@@ -65,6 +54,10 @@ MFE_CONFIG.update({
     "LANGUAGE_PREFERENCE_COOKIE_NAME": "openedx-language-preference",
     "MARKETING_SITE_BASE_URL": LMS_ROOT_URL,
     "SITE_NAME": "Open edX",
+    # Studio + authoring MFE, so frontend-app-authoring (which pulls its config
+    # from this API) talks to the right Studio rather than the devstack default.
+    "STUDIO_BASE_URL": CMS_ROOT_URL,
+    "COURSE_AUTHORING_MICROFRONTEND_URL": "http://apps.local.openedx.io:2001/authoring",
 })
 
 # Disable enterprise integration. Without this, the post-login redirect calls

@@ -62,7 +62,18 @@ CSRF_COOKIE_DOMAIN = "local.openedx.io"
 CSRF_COOKIE_SECURE = False
 
 # CORS base flags. MFEs make credentialed cross-origin calls to the IDAs, which
-# is incompatible with allow-all; each system whitelists specific origins.
+# is incompatible with allow-all, so we whitelist specific origins below.
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ALLOW_INSECURE = True
+
+# MFE origins we run in dev. Both the LMS and the CMS whitelist the full set for
+# CORS (harmless on an IDA that a given MFE doesn't call). CSRF-trust and
+# login-redirect whitelisting are list *mutations* and so are done per-system
+# (see settings_{lms,cms}_dev.py), using MFE_ORIGINS / MFE_HOSTS from here.
+MFE_ORIGINS = [
+    "http://apps.local.openedx.io:1999",  # frontend-app-authn
+    "http://apps.local.openedx.io:2001",  # frontend-app-authoring
+]
+MFE_HOSTS = [origin.split("//", 1)[1] for origin in MFE_ORIGINS]  # "host:port"
+CORS_ORIGIN_WHITELIST = list(MFE_ORIGINS)
