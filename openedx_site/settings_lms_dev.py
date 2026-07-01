@@ -58,7 +58,15 @@ MFE_CONFIG.update({
     # from this API) talks to the right Studio rather than the devstack default.
     "STUDIO_BASE_URL": CMS_ROOT_URL,
     "COURSE_AUTHORING_MICROFRONTEND_URL": "http://apps.local.openedx.io:2001/authoring",
+    "LEARNING_BASE_URL": "http://apps.local.openedx.io:2000/learning",
 })
+
+# Learning MFE (../frontend-app-learning): the LMS links learners to it for
+# courseware. LMS-only; point it at our host (devstack default is
+# localhost:2000). NETLOC is computed from the URL at devstack-import time, so
+# it also needs updating.
+LEARNING_MICROFRONTEND_URL = "http://apps.local.openedx.io:2000/learning"
+LEARNING_MICROFRONTEND_NETLOC = "apps.local.openedx.io:2000"
 
 # Disable enterprise integration. Without this, the post-login redirect calls
 # the Enterprise API at the devstack-default internal URL (localhost:18000),

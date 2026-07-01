@@ -60,6 +60,14 @@ SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_DOMAIN = "local.openedx.io"
 CSRF_COOKIE_SECURE = False
+# The JWT auth cookies (edx-jwt-cookie-*) use SHARED_COOKIE_DOMAIN, not
+# SESSION_COOKIE_DOMAIN. Upstream defines it as Derived(SESSION_COOKIE_DOMAIN),
+# but the devstack import resolves that Derived while SESSION_COOKIE_DOMAIN is
+# still None, baking in None; our override above doesn't re-trigger it. Set it
+# explicitly so the JS-readable access-token cookie is scoped to the parent
+# domain and readable by MFEs on apps.local.openedx.io (otherwise frontend-auth
+# reports "Access token is still null after successful refresh").
+SHARED_COOKIE_DOMAIN = SESSION_COOKIE_DOMAIN
 
 # CORS base flags. MFEs make credentialed cross-origin calls to the IDAs, which
 # is incompatible with allow-all, so we whitelist specific origins below.
@@ -73,6 +81,7 @@ CORS_ALLOW_INSECURE = True
 # (see settings_{lms,cms}_dev.py), using MFE_ORIGINS / MFE_HOSTS from here.
 MFE_ORIGINS = [
     "http://apps.local.openedx.io:1999",  # frontend-app-authn
+    "http://apps.local.openedx.io:2000",  # frontend-app-learning
     "http://apps.local.openedx.io:2001",  # frontend-app-authoring
 ]
 MFE_HOSTS = [origin.split("//", 1)[1] for origin in MFE_ORIGINS]  # "host:port"
