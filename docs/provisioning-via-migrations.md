@@ -2,7 +2,12 @@
 
 *Discovery notes on moving database provisioning out of the downstream-locked
 `provision.sh` and into standard Django data migrations / `post_migrate`
-reconciliation inside `openedx_site`. No code changes yet — this is analysis.*
+reconciliation inside `openedx_site`.*
+
+**Status:** the `openedx_site.openedx_provisioning` app now exists and carries
+the first data migration — waffle flags/switches (see
+`waffle-flags-tutor-vs-upstream.md` for the cross-reference). Other items
+(DOT app, service users, etc.) remain candidates per the analysis below.
 
 ## The question
 

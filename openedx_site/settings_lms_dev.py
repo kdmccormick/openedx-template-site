@@ -17,6 +17,10 @@ FEATURES = FeaturesProxy(globals())
 ALLOWED_HOSTS.append("local.openedx.io")
 ALLOWED_HOSTS.append("local.openedx.io:8000")
 SITE_NAME = LMS_BASE
+
+# Our provisioning app (data migrations for waffle flags etc.). Installed in
+# both LMS and CMS; the shared DB means each migration runs once.
+INSTALLED_APPS.append("openedx_site.openedx_provisioning")
 CSRF_TRUSTED_ORIGINS.append(LMS_ROOT_URL)
 LOGIN_REDIRECT_WHITELIST.append(LMS_BASE)
 

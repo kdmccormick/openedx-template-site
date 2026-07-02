@@ -15,6 +15,10 @@ ALLOWED_HOSTS.append("studio.local.openedx.io")
 ALLOWED_HOSTS.append("studio.local.openedx.io:8001")
 SITE_NAME = CMS_BASE
 
+# Our provisioning app (data migrations for waffle flags etc.). Installed in
+# both LMS and CMS; the shared DB means each migration runs once.
+INSTALLED_APPS.append("openedx_site.openedx_provisioning")
+
 # --- Authenticate against the LMS via OAuth2 SSO --------------------------
 # Studio does not authenticate users itself: it uses the social-auth edx-oauth2
 # backend (already in AUTHENTICATION_BACKENDS) to log in against the LMS. The
