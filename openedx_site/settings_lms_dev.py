@@ -18,6 +18,8 @@ ALLOWED_HOSTS.append("local.openedx.io")
 ALLOWED_HOSTS.append("local.openedx.io:8000")
 SITE_NAME = LMS_BASE
 
+ROOT_URLCONF = "openedx_site.urls_lms"
+
 # Our provisioning app (data migrations for waffle flags etc.). Installed in
 # both LMS and CMS; the shared DB means each migration runs once.
 INSTALLED_APPS.append("openedx_site.openedx_provisioning")

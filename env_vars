@@ -14,8 +14,8 @@ MYSQL_PASSWORD=password
 MYSQL_ROOT_USERNAME=root
 MYSQL_ROOT_PASSWORD=password
 
-# Config yamls, relative to openedx-platform root.
-LMS_CFG=lms/envs/minimal.yml
+# Config yamls, relative to openedx-platform or openedx-template-site root.
+LMS_CFG=../openedx-platform/lms/envs/minimal.yml
 CMS_CFG="$LMS_CFG"
 
 # CMS (Studio) SSO OAuth2 client. Studio authenticates against the LMS via

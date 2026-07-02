@@ -9,6 +9,9 @@ from .shared_settings_overrides_dev import *
 # live-updating. The former is a deprecated syntax for the latter.
 FEATURES = FeaturesProxy(globals())
 
+# TODO comment and do same in lms
+ROOT_URLCONF = "openedx_site.urls_cms"
+
 # Host URLs and cross-domain cookie settings are shared with the LMS and live
 # in shared_settings_overrides_dev.py; here we add only CMS-specific wiring.
 ALLOWED_HOSTS.append("studio.local.openedx.io")

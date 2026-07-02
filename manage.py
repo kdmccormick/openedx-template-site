@@ -1,23 +1,27 @@
-#!/bin/bash
-# A passthru until we get wip_manage.py working.
+#!/usr/bin/env python
+"""
+Django's command-line utility for administrative tasks.
 
-for envvar in \
-        "DJANGO_SETTINGS_MODULE" \
-        "STATIC_ROOT_LMS" \
-        "STATIC_ROOT_CMS" \
-        "LMS_CFG" \
-        "CMS_CFG" ; do
-    >&2 echo "$envvar=${!envvar}"
-done
+@@TODO this does not fully work yet. For now, just use
+openedx-platform's manage.py
+"""
+import os
+import sys
+from path import Path
 
-case "$DJANGO_SETTINGS_MODULE" in
-    *lms*) system="lms" ;;
-    *cms*) system="cms" ;;
-    *)
-        >&2 echo "could not determine system for settings $DJANGO_SETTINGS_MODULE"
-        exit 1
-        ;;
-esac
 
-set -x
-cd ../openedx-platform && ./manage.py "$system" "$@"
+def main():
+    """Run administrative tasks."""
+    try:
+        from django.core.management import execute_from_command_line
+    except ImportError as exc:
+        raise ImportError(
+            "Couldn't import Django. Are you sure it's installed and "
+            "available on your PYTHONPATH environment variable? Did you "
+            "forget to activate a virtual environment?"
+        ) from exc
+    execute_from_command_line(sys.argv)
+
+
+if __name__ == '__main__':
+    main()
