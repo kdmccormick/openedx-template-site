@@ -11,8 +11,12 @@ uv venv --python python3.12
 # Get env vars (also sources .venv, if you put it there)
 source env
 
-# Install deps
+# Install backend deps
 uv pip install -r requirements_tmp.txt  # future: `uv sync .`
+
+# Build legacy frontends
+openedx_platform_npm ci
+openedx_platform_npm run build # or build-dev
 
 # Provision data
 docker compose -d up

@@ -1,40 +1,56 @@
-# Static assets discovery (first pass)
+# Static assets
 
-*This is a living discovery written by Claude as we work through the challenge of getting openedx-platform static assets to be served through openedx-template-site.*
+*Living notes on getting openedx-platform static assets served through
+openedx-template-site, as we relax the assumption that openedx-platform is a
+`-e`-installed sibling checkout.*
 
-Status: discovery notes, not a finalized plan. Context: openedx-site installs
-openedx-platform as a non-editable package; static assets are missing from the
-install (e.g. `./manage.py migrate` fails reading
+Context: openedx-site installs openedx-platform as a package; static assets are
+missing from a non-editable install (e.g. `./manage.py migrate` fails reading
 `lms/static/images/default-badges/honor.png`).
 
-## CURRENT DECISION (supersedes the "bundle the build artifacts" leanings below)
-
-We pivoted away from bundling the legacy *built* assets into the wheel, because
-they are large (webpack `bundles` alone is 73M) and on track for deletion within
-~a year. Three categories, not two:
+## Asset categories
 
 1. **Legacy *built* assets** — webpack bundles + compiled Sass→CSS. Regenerable,
-   gitignored, dying. → NOT shipped in the wheel.
+   gitignored, ~73M, on track for deletion upstream within ~a year. → NOT
+   shipped in the wheel.
 2. **openedx-platform's own *source* static** — badge PNGs, fonts, images,
    vendor CSS, legacy JS/Sass *sources*. Checked into git; some required at
    runtime/migrate time (the badge PNG that started this is here). → SHIPPED.
 3. **3rd-party app static** — from other pip packages; collected normally.
 
-Resulting model:
+Model:
 
 - **Base wheel = Python + all checked-in *source* static, minus build outputs.**
-  Expressed simply by NOT running `npm run build` before
-  `python -m build --wheel` — the `"*" = ["static/**/*"]` glob only matches
-  on-disk files, so gitignored build outputs are naturally absent. Drops the 73M
-  bundles for free; `pip install` makes the badge migrate + source-asset
-  `collectstatic` work.
-- **Legacy built assets via a console script** shipped by openedx-platform
-  (e.g. `build_legacy_openedx_platform_frontends`) that runs the existing
-  `npm ci && npm run build[-dev]` pipeline in the install location, writing
-  artifacts in-place. Opt-in; evaporates when legacy is deleted upstream.
-- **Dev skips collectstatic** entirely (see dev workflow section). The
-  "collectstatic depends on the build" knot is a PROD-only concern, parked for
-  now (likely `PipelineFinder`/`webpack-stats.json` post-processing).
+  Just don't run `npm run build` before `python -m build --wheel` — the
+  `"*" = ["static/**/*"]` glob only matches on-disk files, so gitignored build
+  outputs are naturally absent. Drops the 73M bundles; `pip install` makes the
+  badge migrate + source-asset `collectstatic` work.
+- **Legacy built assets via `openedx_platform_npm`**, a console script shipped
+  by openedx-platform (see below) that runs `npm` in the install location.
+  Opt-in; evaporates when the legacy build is deleted upstream.
+- **Dev skips collectstatic** entirely (see dev workflow). The "collectstatic
+  depends on the build" knot is a PROD-only concern, parked (likely
+  `PipelineFinder`/`webpack-stats.json` post-processing).
+
+## The `openedx_platform_npm` console script
+
+openedx-platform exposes `openedx_platform_npm` (entry point
+`openedx.scripts.npm:main`), a dead-simple proxy that forwards its args to `npm`
+run from the openedx-platform repo root (located via the `package.json` next to
+the installed packages; it errors if absent, as in a wheel install). This lets a
+downstream project build the platform's frontends without a sibling checkout or
+its own `package.json`:
+
+```bash
+openedx_platform_npm ci
+openedx_platform_npm run build        # prod
+openedx_platform_npm run build-dev    # dev
+```
+
+The scripts it relies on (`compile_sass.py` etc.) live under `openedx/scripts/`
+so they ship with the package; a repo-root `scripts/` symlink keeps
+`package.json`'s `scripts/...` references working. openedx-site therefore has no
+`package.json` of its own.
 
 ## Root cause of the missing-assets / migration failure
 
@@ -94,7 +110,7 @@ STATICFILES_FINDERS = [theming finder, FileSystemFinder, AppDirectoriesFinder,
 every installed app's `static/` dir into `STATIC_ROOT` (`staticfiles`, default
 `ENV_ROOT/staticfiles`). It is a derived copy.
 
-## Layer-3 split (working hypothesis — CONFIRMED)
+## Layer-3 split
 
 - **Build artifacts** (compiled CSS, webpack bundles): an installer *cannot*
   regenerate these without invoking openedx-platform's internal Node/Sass build
@@ -196,10 +212,10 @@ source tree and skips the sdist round-trip entirely. Pairs with the B shim
 PEP 660 it installs a redirect so `import lms` resolves to the **live source
 tree**; nothing is copied. So "no sdist" does NOT affect the dev story.
 
-Dev loop (vision): `pip install -e ../openedx-platform`, then:
+Dev loop: with openedx-platform editable-installed,
 - Edit Python → reflected immediately (runserver autoreload).
-- Edit JS/Sass → `npm run build-dev` (or `npm run watch`) regenerates artifacts
-  in-place in the source `static/` dirs → served.
+- Edit JS/Sass → `openedx_platform_npm run build-dev` (or `run watch`)
+  regenerates artifacts in-place in the source `static/` dirs → served.
 
 Works because build-dev writes artifacts into the same source tree that editable
 points imports at.
@@ -225,22 +241,17 @@ source tree — **no `collectstatic` in dev**. So we only need the build artifac
 written into the checkout's `static/` dirs, where `build-dev`/`watch` already
 write them.
 
-Invoking the build (two equivalent options):
-- (a) **Console script** (recommended, location-agnostic; identical command in
-  dev → editable checkout and prod → site-packages):
-  `build_legacy_openedx_platform_frontends --dev`
-- (b) **Just run npm in the checkout**: `npm ci && npm run build-dev`
-  (or `npm run watch` for the live-rebuild loop).
+Invoke the build via the console script (location-agnostic; same command whether
+openedx-platform is an editable checkout or in site-packages):
 
 ```bash
 # openedx-site
-pip install -e ../openedx-platform
-build_legacy_openedx_platform_frontends --dev          # or: (cd ../openedx-platform && npm run build-dev)
-DJANGO_SETTINGS_MODULE=... ./manage.py lms runserver    # serves live, no collectstatic
+openedx_platform_npm ci
+openedx_platform_npm run build-dev     # or `run watch` for the live-rebuild loop
+./manage.py runserver                  # serves live, no collectstatic
 ```
 
-Do NOT auto-run npm during `pip install` (rejected "option C" magic) — keep the
-asset build explicit.
+Do NOT auto-run npm during `pip install` — keep the asset build explicit.
 
 ### Where node_modules lives (decided: in the platform checkout)
 

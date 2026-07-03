@@ -7,7 +7,7 @@ name = "openedx-site"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
-    "openedx-platform",
+    "openedx-platform[development]",  # @@TODO remove dev dep. This is currently for assets.txt.
     # uv has a weird behavior where is doesn't consistently respect pinned
     # versions. This constraint exists upstream in openedx-platform, but
     # we have to re-specify it here to ensure that we get setuptools<=81
@@ -19,6 +19,9 @@ dependencies = [
 development = [
     "openedx-platform[development]"
 ]
+
+[tool.setuptools.packages.find]
+include = ["openedx_site*"]
 
 [tool.uv.sources]
 openedx-platform = { path = "../openedx-platform", editable = true }

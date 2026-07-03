@@ -1,8 +1,0 @@
-{
-  "name": "openedx-template-site",
-  "version": "0.1.0",
-  "scripts": {
-    "build": "cd ../openedx-platform && npm run build",
-    "build-dev": "cd ../openedx-platform && npm run build-dev"
-  }
-}

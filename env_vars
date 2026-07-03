@@ -42,5 +42,5 @@ DJANGO_SETTINGS_MODULE=openedx_site.settings_lms_dev
 # @@TODO I think things break if this is put anywhere else.
 #        Need to figure out how to make it safely configurable.
 #        Would like to move it within openedx-template-site by default.
-STATIC_ROOT_LMS="$HOME/openedx/staticfiles"
+STATIC_ROOT_LMS="$(pwd)/staticfiles" #"$HOME/openedx/staticfiles"  # @@TODO
 STATIC_ROOT_CMS="$STATIC_ROOT_LMS/studio"
