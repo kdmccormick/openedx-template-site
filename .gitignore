@@ -1,7 +1,31 @@
-.DS_Store
+# user stuff
+/requirements_private.txt
+/staticfiles
+coverage
+
+# backend
 .venv
 uv.lock
 *.egg-info
 __pycache__
-/requirements_private.txt
-/staticfiles
+
+# frontend
+node_modules
+npm-debug.log
+module.config.js
+dist/
+/dev-frontends
+/*.tgz
+/.turbo
+
+### i18n ###
+src/i18n/transifex_input.json
+src/i18n/messages.ts
+src/i18n/messages/
+src/i18n/site-messages/index.ts
+
+### Editors ###
+.DS_Store
+*~
+/temp
+/.vscode

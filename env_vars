@@ -44,3 +44,6 @@ DJANGO_SETTINGS_MODULE=openedx_site.settings_lms_dev
 #        Would like to move it within openedx-template-site by default.
 STATIC_ROOT_LMS="$(pwd)/staticfiles" #"$HOME/openedx/staticfiles"  # @@TODO
 STATIC_ROOT_CMS="$STATIC_ROOT_LMS/studio"
+
+# Tell Turbo (our frontend build tool) not to do telemetry on us
+DO_NOT_TRACK=1

@@ -1,0 +1,65 @@
+{
+  "name": "@openedx/frontend-template-site",
+  "version": "1.0.0",
+  "description": "Frontend site template",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/openedx/frontend-template-site.git"
+  },
+  "workspaces": [
+    "dev-frontends/*"
+  ],
+  "browserslist": [
+    "extends @edx/browserslist-config"
+  ],
+  "sideEffects": [
+    "*.css",
+    "*.scss"
+  ],
+  "scripts": {
+    "serve": "openedx serve",
+    "build": "openedx build",
+    "clean": "rm -rf dist",
+    "dev:serve": "PORT=8080 openedx dev",
+    "dev:build": "turbo run build && npm run bin-link",
+    "dev:watch": "turbo run watch:build dev:site",
+    "dev:clean": "turbo run clean",
+    "bin-link": "bash -c '[ -f dev-frontends/frontend-base/package.json ] && npm rebuild --ignore-scripts @openedx/frontend-base || true'",
+    "translations:pull": "openedx translations:pull"
+  },
+  "author": "Open edX",
+  "license": "AGPL-3.0",
+  "homepage": "https://github.com/openedx/frontend-template-site#readme",
+  "bugs": {
+    "url": "https://github.com/openedx/frontend-template-site/issues"
+  },
+  "atlasTranslations": {
+    "dependencies": [
+      "@openedx/frontend-app-authn",
+      "@openedx/frontend-app-learner-dashboard",
+      "@openedx/frontend-app-instructor-dashboard",
+      "@openedx/frontend-app-notifications",
+      "@openedx/frontend-base"
+    ]
+  },
+  "dependencies": {
+    "@edx/brand": "npm:@openedx/brand-openedx@^1.3.0 || 0.0.0-dev",
+    "@openedx/frontend-app-authn": "^1.0.0 || 0.0.0-dev",
+    "@openedx/frontend-app-learner-dashboard": "^1.0.0 || 0.0.0-dev",
+    "@openedx/frontend-app-instructor-dashboard": "^1.0.0 || 0.0.0-dev",
+    "@openedx/frontend-app-notifications": "^3.0.0 || 0.0.0-dev",
+    "@openedx/frontend-base": "^1.0.0 || 0.0.0-dev"
+  },
+  "devDependencies": {
+    "@edx/browserslist-config": "^1.5.0",
+    "turbo": "^2.8.16"
+  },
+  "peerDependencies": {
+    "@openedx/paragon": "^23",
+    "@tanstack/react-query": "^5",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-router": "^6",
+    "react-router-dom": "^6"
+  }
+}
