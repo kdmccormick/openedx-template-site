@@ -40,16 +40,19 @@ LOGIN_REDIRECT_WHITELIST += MFE_HOSTS
 # the MFEs; whether an MFE happens to be running is a separate concern.)
 _MFE = "http://apps.local.openedx.io"
 
+# Authn and learner-dashboard are served by frontend-base (the shell app) on
+# :8080 rather than their own standalone devservers.
+#
 # Authn MFE: redirect /login + /register to it instead of the legacy LMS login
 # page. The redirect is gated on this toggle (see user_authn/toggles.py:
 # should_redirect_to_authn_microfrontend).
 ENABLE_AUTHN_MICROFRONTEND = True
-AUTHN_MICROFRONTEND_URL = f"{_MFE}:1999/authn"
+AUTHN_MICROFRONTEND_URL = f"{_MFE}:8080/authn/"
 AUTHN_MICROFRONTEND_DOMAIN = "apps.local.openedx.io/authn"
 
 ACCOUNT_MICROFRONTEND_URL = f"{_MFE}:1997/account/"
 PROFILE_MICROFRONTEND_URL = f"{_MFE}:1995/profile/u/"
-LEARNER_HOME_MICROFRONTEND_URL = f"{_MFE}:1996/learner-dashboard/"
+LEARNER_HOME_MICROFRONTEND_URL = f"{_MFE}:8080/learner-dashboard/"
 COMMUNICATIONS_MICROFRONTEND_URL = f"{_MFE}:1984/communications"
 DISCUSSIONS_MICROFRONTEND_URL = f"{_MFE}:2002/discussions"
 DISCUSSIONS_MFE_FEEDBACK_URL = None

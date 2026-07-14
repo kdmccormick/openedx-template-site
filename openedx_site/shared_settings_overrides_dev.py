@@ -89,6 +89,7 @@ CORS_ALLOW_INSECURE = True
 # Ports match tutor-mfe's canonical MFE roster. We configure the IDAs to talk
 # to all of them; we don't have to run them all at once.
 MFE_ORIGINS = [
+    "http://apps.local.openedx.io:8080",  # frontend-base (shell hosting multiple frontend-apps)
     "http://apps.local.openedx.io:1984",  # frontend-app-communications
     "http://apps.local.openedx.io:1993",  # frontend-app-ora-grading
     "http://apps.local.openedx.io:1994",  # frontend-app-gradebook

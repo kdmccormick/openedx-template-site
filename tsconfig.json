@@ -10,4 +10,21 @@
     "eslint.config.js",
     "site.config.*.tsx",
   ],
+  // The root-level patterns above make TypeScript (via fork-ts-checker) watch
+  // the project root, which on macOS recurses the whole tree. Specifying
+  // `exclude` overrides TS's defaults, so re-list node_modules and dist here,
+  // and add .venv (the Python virtualenv) -- otherwise its thousands of dirs
+  // get watched and the dev server dies with EMFILE: too many open files.
+  "exclude": [
+    "node_modules",
+    "dist",
+    ".venv",
+  ],
+  "watchOptions": {
+    "excludeDirectories": [
+      "**/node_modules",
+      "dist",
+      ".venv",
+    ],
+  },
 }
