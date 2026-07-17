@@ -10,13 +10,7 @@ uv.lock
 __pycache__
 
 # frontend
-node_modules
-npm-debug.log
-module.config.js
-dist/
-/dev-frontends
-/*.tgz
-/.turbo
+frontend
 
 ### i18n ###
 src/i18n/transifex_input.json

@@ -18,6 +18,10 @@ uv pip install -r requirements_tmp.txt  # future: `uv sync .`
 openedx_platform_npm ci
 openedx_platform_npm run build # or build-dev
 
+# Set up new frontends
+git clone git@github.com:openedx/frontend-template-site frontend
+(cd frontend && npm ci)
+
 # Provision data
 docker compose -d up
 ./manage.py migrate
@@ -25,10 +29,11 @@ docker compose -d up
 docker compose down  # if you're done
 
 # Whenever you want to run it:
-# In three different shells:
+# In four different shells:
 docker compose up
 ./manage.py runserver  # LMS
-source env_cms && ./manage.py runserver # CMS
+(source env_cms && ./manage.py runserver) # CMS
+(cd frontend && npm dev:packages)  # Frontends
 ```
 
 ## Operating your site with Open edX Site Buddy
