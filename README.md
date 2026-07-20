@@ -1,31 +1,37 @@
 Warning: This doesn't entirely work yet. Issues:
 
 * Assumes openedx-platform is cloned as a sibling directory.
-* No frontends.
 * Not fully tested.
 
 ```
+# Install prereqs for running on Ubuntu.
+# If you don't trust this script or are running on a different system,
+# then read through it and install the prereqs in your preferred way.
+sudo ./install-ubuntu-prereqs.sh
+
 # Create a venv using your preferred method
 uv venv --python python3.12
 
 # Get env vars (also sources .venv, if you put it there)
-source env
+source ./env
 
-# Install backend deps
-uv pip install -r requirements_tmp.txt  # future: `uv sync .`
-
-# Build legacy frontends
-openedx_platform_npm ci
-openedx_platform_npm run build # or build-dev
+# Install backend base+dev python deps
+uv sync . --extra development
 
 # Set up new frontends
 git clone git@github.com:openedx/frontend-template-site frontend
+nvm install
 (cd frontend && npm ci)
+
+# Build legacy frontends
+# (requires node, which you installed in the previous step)
+openedx_platform_npm ci
+openedx_platform_npm run build # or build-dev
+
 
 # Provision data
 docker compose -d up
-./manage.py migrate
-./provision.sh
+./provision.sh  # includes migrations
 docker compose down  # if you're done
 
 # Whenever you want to run it:

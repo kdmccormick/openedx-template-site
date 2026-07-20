@@ -1,15 +1,16 @@
 # Source this into your shell to set up your CMS dev environment:
 #
-#     . env_cms
+#     . ./env_cms
 #
-# It starts with the base LMS dev env and adds in env_vars_cms.
+# This is the same as `./env` followed by a CMS DJANGO_SETTINGS_MODULE override
 
 # Export every assignment in env_vars without needing `export` on each line.
 # `set -a` (allexport) keeps env_vars as plain KEY=VALUE for docker compose.
 set -a
 . ./env
-. ./env_vars_cms
 set +a
+
+export DJANGO_SETTINGS_MODULE=openedx_site.settings_cms_dev
 
 # Activate the virtualenv for convenience.
 . .venv/bin/activate

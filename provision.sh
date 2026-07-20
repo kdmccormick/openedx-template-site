@@ -1,5 +1,44 @@
 #!/bin/bash
 
+set -x  # echo back commands
+set -euo pipefail  # strict mode
+
+mysql_as_root() {
+	mysql \
+		"--user=$MYSQL_ROOT_USERNAME" \
+		"--password=$MYSQL_ROOT_PASSWORD" \
+		"--host=$MYSQL_HOST" \
+		"--port=$MYSQL_PORT" \
+		"$@"
+}
+
+echo "Initialising MySQL..."
+mysql_connection_max_attempts=10
+mysql_connection_attempt=0
+until mysql_as_root -e 'exit'
+do
+    mysql_connection_attempt=$(expr $mysql_connection_attempt + 1)
+    echo "    [$mysql_connection_attempt/$mysql_connection_max_attempts] Waiting for MySQL service (this may take a while)..."
+    if [ $mysql_connection_attempt -eq $mysql_connection_max_attempts ]
+    then
+      echo "MySQL initialisation error" 1>&2
+      exit 1
+    fi
+    sleep 10
+done
+echo "MySQL is up and running"
+
+# Create openedx-platform database and db user
+mysql_as_root -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;"
+mysql_as_root -e "CREATE USER IF NOT EXISTS '$MYSQL_USER';"
+mysql_as_root -e "ALTER USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';"
+mysql_as_root -e "GRANT ALL ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%';"
+
+# Run migrations
+./manage.py migrate
+DJANGO_SETTINGS_MODULE=openedx_site.settings_cms_dev ./manage.py migrate
+
+# Create LMS admin user
 ./manage.py shell -c '
 from django.contrib.auth import get_user_model
 from common.djangoapps.student.models import UserProfile
