@@ -41,6 +41,40 @@ warnings.filterwarnings("ignore", message="urllib3.*or chardet.*doesn't match a 
 warnings.filterwarnings("ignore", message="ContentLibraryPermission model and related.*")
 
 
+# --- MongoDB --------------------------------------------------------------
+# Override the platform defaults (which connect to 'edxapp' with no auth).
+# The compose MongoDB service uses MONGO_USER as its root/only user
+# (MONGO_INITDB_ROOT_USERNAME), stored in the admin db.
+DOC_STORE_CONFIG = {
+    'host': os.environ.get('MONGO_HOST', '127.0.0.1'),
+    'port': int(os.environ.get('MONGO_PORT', '27017')),
+    'db': os.environ.get('MONGO_DATABASE', 'openedx'),
+    'user': os.environ.get('MONGO_USER', 'openedx'),
+    'password': os.environ.get('MONGO_PASSWORD', 'password'),
+    'auth_source': 'admin',
+    'collection': 'modulestore',
+    'replicaSet': '',
+    'ssl': False,
+    'socketTimeoutMS': 6000,
+    'connectTimeoutMS': 2000,
+}
+
+CONTENTSTORE = {
+    'ENGINE': 'xmodule.contentstore.mongo.MongoContentStore',
+    'OPTIONS': {
+        'host': os.environ.get('MONGO_HOST', '127.0.0.1'),
+        'port': int(os.environ.get('MONGO_PORT', '27017')),
+        'db': os.environ.get('MONGO_DATABASE', 'openedx'),
+        'user': os.environ.get('MONGO_USER', 'openedx'),
+        'password': os.environ.get('MONGO_PASSWORD', 'password'),
+        'auth_source': 'admin',
+        'ssl': False,
+    },
+    'ADDITIONAL_OPTIONS': {},
+    'DOC_STORE_CONFIG': DOC_STORE_CONFIG,
+}
+
+
 # --- Cross-cutting dev overrides ------------------------------------------
 # NOTE: this module runs in its own namespace and does NOT import the lms/cms
 # devstack settings, so it can only do *scalar assignments* here (the importing

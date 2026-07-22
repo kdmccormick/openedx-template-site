@@ -14,15 +14,14 @@ services:
         target: /var/lib/mysql
   mongo:
     image: mongo:7
+    env_file: env_vars
     environment:
-      MONGO_INITDB_DATABASE: 'edxapp'
+      MONGO_INITDB_ROOT_USERNAME: "${MONGO_USER}"
+      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_PASSWORD}"
+      MONGO_INITDB_DATABASE: "${MONGO_DATABASE}"
     ports:
       - 27017:27017
     volumes:
-      - type: bind
-        source: mongo-entrypoints.d
-        target: /docker-entrypoint-initdb.d/
-        read_only: true
       - type: volume
         source: mongo_data
         target: /data/db

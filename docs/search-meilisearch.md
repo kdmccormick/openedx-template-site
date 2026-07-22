@@ -10,8 +10,8 @@ mysql/mongo.
 ## Pieces
 
 - **compose.yml** — a `meilisearch` service (`getmeili/meilisearch`), port 7700,
-  `env_file: env_vars` (reads `MEILI_MASTER_KEY`, `MEILI_NO_ANALYTICS`). Like
-  mysql/mongo, data is not persisted to a named volume — it lives in the
+  `env_file: env_vars` (reads `MEILI_MASTER_KEY`, `MEILI_NO_ANALYTICS`).
+  Data is not persisted to a named volume — it lives in the
   container and is lost on `docker compose down`.
 - **env_vars** — `MEILI_MASTER_KEY` (server admin key, also read by the
   container), `MEILISEARCH_API_KEY_UID` (fixed UUIDv4 for the backend key),

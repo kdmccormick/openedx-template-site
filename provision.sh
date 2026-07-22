@@ -34,6 +34,31 @@ mysql_as_root -e "CREATE USER IF NOT EXISTS '$MYSQL_USER';"
 mysql_as_root -e "ALTER USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';"
 mysql_as_root -e "GRANT ALL ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%';"
 
+mongo_as_user() {
+	docker compose exec mongo mongosh \
+		--quiet \
+		--username "$MONGO_USER" \
+		--password "$MONGO_PASSWORD" \
+		--authenticationDatabase admin \
+		"$@"
+}
+
+echo "Initialising MongoDB..."
+mongo_connection_max_attempts=10
+mongo_connection_attempt=0
+until mongo_as_user --eval 'exit'
+do
+    mongo_connection_attempt=$(expr $mongo_connection_attempt + 1)
+    echo "    [$mongo_connection_attempt/$mongo_connection_max_attempts] Waiting for MongoDB service (this may take a while)..."
+    if [ $mongo_connection_attempt -eq $mongo_connection_max_attempts ]
+    then
+      echo "MongoDB initialisation error" 1>&2
+      exit 1
+    fi
+    sleep 10
+done
+echo "MongoDB is up and running"
+
 # Run migrations
 ./manage.py migrate
 DJANGO_SETTINGS_MODULE=openedx_site.settings_cms_dev ./manage.py migrate
