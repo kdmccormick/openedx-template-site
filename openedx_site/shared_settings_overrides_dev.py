@@ -70,7 +70,7 @@ DOC_STORE_CONFIG = {
     'db': os.environ.get('MONGO_DATABASE', 'openedx'),
     'user': os.environ.get('MONGO_USER', 'openedx'),
     'password': os.environ.get('MONGO_PASSWORD', 'password'),
-    'auth_source': 'admin',
+    'authSource': 'admin',  # camelCase: mongo_utils.py pops+discards 'auth_source'
     'collection': 'modulestore',
     'replicaSet': '',
     'ssl': False,
@@ -102,7 +102,7 @@ CONTENTSTORE = {
         'db': os.environ.get('MONGO_DATABASE', 'openedx'),
         'user': os.environ.get('MONGO_USER', 'openedx'),
         'password': os.environ.get('MONGO_PASSWORD', 'password'),
-        'auth_source': 'admin',
+        'authSource': 'admin',  # camelCase: mongo_utils.py pops+discards 'auth_source'
         'ssl': False,
     },
     'ADDITIONAL_OPTIONS': {},
