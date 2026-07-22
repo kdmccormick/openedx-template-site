@@ -4,7 +4,7 @@ set -x  # echo back commands
 set -euo pipefail  # strict mode
 
 mysql_as_root() {
-	mysql \
+	docker compose exec mysql mysql \
 		"--user=$MYSQL_ROOT_USERNAME" \
 		"--password=$MYSQL_ROOT_PASSWORD" \
 		"--host=$MYSQL_HOST" \
