@@ -9,6 +9,9 @@ services:
         source: mysql-entrypoints.d
         target: /docker-entrypoint-initdb.d/
         read_only: true
+      - type: volume
+        source: mysql_data
+        target: /var/lib/mysql
   mongo:
     image: mongo:7
     environment:
@@ -20,6 +23,9 @@ services:
         source: mongo-entrypoints.d
         target: /docker-entrypoint-initdb.d/
         read_only: true
+      - type: volume
+        source: mongo_data
+        target: /data/db
     ulimits:
       nofile:
         soft: 65536
@@ -33,3 +39,7 @@ services:
     env_file: env_vars
     ports:
       - 7700:7700
+
+volumes:
+  mysql_data:
+  mongo_data:
