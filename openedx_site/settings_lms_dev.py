@@ -14,7 +14,6 @@ FEATURES = FeaturesProxy(globals())
 # with the CMS and live in shared_settings_overrides_dev.py; here we add only
 # the LMS-specific host wiring. Without trusting our real origin for CSRF and
 # allowing it as a redirect target, the login POST 403s and bounces.
-ALLOWED_HOSTS.append("local.openedx.io")
 ALLOWED_HOSTS.append("local.openedx.io:8000")
 SITE_NAME = LMS_BASE
 
