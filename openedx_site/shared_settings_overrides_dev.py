@@ -41,6 +41,25 @@ warnings.filterwarnings("ignore", message="urllib3.*or chardet.*doesn't match a 
 warnings.filterwarnings("ignore", message="ContentLibraryPermission model and related.*")
 
 
+# --- MySQL ----------------------------------------------------------------
+# Override the platform defaults (edxapp001/edxapp) with our env_vars values.
+# All three aliases point at the same single dev database.
+_db = {
+    'ENGINE': 'django.db.backends.mysql',
+    'HOST': os.environ.get('MYSQL_HOST', '127.0.0.1'),
+    'PORT': os.environ.get('MYSQL_PORT', '3306'),
+    'NAME': os.environ.get('MYSQL_DATABASE', 'openedx'),
+    'USER': os.environ.get('MYSQL_USER', 'openedx'),
+    'PASSWORD': os.environ.get('MYSQL_PASSWORD', 'password'),
+    'OPTIONS': {},
+}
+DATABASES = {
+    'default': {'ATOMIC_REQUESTS': True, 'CONN_MAX_AGE': 0, **_db},
+    'read_replica': {'CONN_MAX_AGE': 0, **_db},
+    'student_module_history': {'CONN_MAX_AGE': 0, **_db},
+}
+
+
 # --- MongoDB --------------------------------------------------------------
 # Override the platform defaults (which connect to 'edxapp' with no auth).
 # The compose MongoDB service uses MONGO_USER as its root/only user
