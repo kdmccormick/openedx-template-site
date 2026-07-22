@@ -7,7 +7,7 @@ import os
 import warnings
 
 from openedx.core.lib.derived import Derived
-from openedx.envs.common import BLOCK_STRUCTURES_SETTINGS
+from openedx.envs.common import BLOCK_STRUCTURES_SETTINGS, MODULESTORE as _MODULESTORE_BASE
 
 # Repo root (this file lives in <repo>/openedx_site/). Computed from __file__
 # rather than the CWD, because manage.py runs with CWD=../openedx-platform.
@@ -76,6 +76,22 @@ DOC_STORE_CONFIG = {
     'ssl': False,
     'socketTimeoutMS': 6000,
     'connectTimeoutMS': 2000,
+}
+
+# MODULESTORE also embeds DOC_STORE_CONFIG by reference (set at common.py import
+# time), so replacing DOC_STORE_CONFIG above doesn't update the embedded copies.
+MODULESTORE = {
+    **_MODULESTORE_BASE,
+    'default': {
+        **_MODULESTORE_BASE['default'],
+        'OPTIONS': {
+            **_MODULESTORE_BASE['default']['OPTIONS'],
+            'stores': [
+                {**store, 'DOC_STORE_CONFIG': DOC_STORE_CONFIG}
+                for store in _MODULESTORE_BASE['default']['OPTIONS']['stores']
+            ],
+        },
+    },
 }
 
 CONTENTSTORE = {
