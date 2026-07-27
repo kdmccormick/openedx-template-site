@@ -46,11 +46,11 @@ warnings.filterwarnings("ignore", message="ContentLibraryPermission model and re
 # All three aliases point at the same single dev database.
 _db = {
     'ENGINE': 'django.db.backends.mysql',
-    'HOST': os.environ.get('MYSQL_HOST', '127.0.0.1'),
-    'PORT': os.environ.get('MYSQL_PORT', '3306'),
-    'NAME': os.environ.get('MYSQL_DATABASE', 'openedx'),
-    'USER': os.environ.get('MYSQL_USER', 'openedx'),
-    'PASSWORD': os.environ.get('MYSQL_PASSWORD', 'password'),
+    'HOST': os.environ['MYSQL_HOST'],
+    'PORT': os.environ['MYSQL_PORT'],
+    'NAME': os.environ['MYSQL_DATABASE'],
+    'USER': os.environ['MYSQL_USER'],
+    'PASSWORD': os.environ['MYSQL_PASSWORD'],
     'OPTIONS': {},
 }
 DATABASES = {
@@ -65,11 +65,11 @@ DATABASES = {
 # The compose MongoDB service uses MONGO_USER as its root/only user
 # (MONGO_INITDB_ROOT_USERNAME), stored in the admin db.
 DOC_STORE_CONFIG = {
-    'host': os.environ.get('MONGO_HOST', '127.0.0.1'),
-    'port': int(os.environ.get('MONGO_PORT', '27017')),
-    'db': os.environ.get('MONGO_DATABASE', 'openedx'),
-    'user': os.environ.get('MONGO_USER', 'openedx'),
-    'password': os.environ.get('MONGO_PASSWORD', 'password'),
+    'host': os.environ['MONGO_HOST'],
+    'port': int(os.environ['MONGO_PORT']),
+    'db': os.environ['MONGO_DATABASE'],
+    'user': os.environ['MONGO_USER'],
+    'password': os.environ['MONGO_PASSWORD'],
     'authSource': 'admin',  # camelCase: mongo_utils.py pops+discards 'auth_source'
     'collection': 'modulestore',
     'replicaSet': '',
@@ -97,11 +97,11 @@ MODULESTORE = {
 CONTENTSTORE = {
     'ENGINE': 'xmodule.contentstore.mongo.MongoContentStore',
     'OPTIONS': {
-        'host': os.environ.get('MONGO_HOST', '127.0.0.1'),
-        'port': int(os.environ.get('MONGO_PORT', '27017')),
-        'db': os.environ.get('MONGO_DATABASE', 'openedx'),
-        'user': os.environ.get('MONGO_USER', 'openedx'),
-        'password': os.environ.get('MONGO_PASSWORD', 'password'),
+        'host': os.environ['MONGO_HOST'],
+        'port': int(os.environ['MONGO_PORT']),
+        'db': os.environ['MONGO_DATABASE'],
+        'user': os.environ['MONGO_USER'],
+        'password': os.environ['MONGO_PASSWORD'],
         'authSource': 'admin',  # camelCase: mongo_utils.py pops+discards 'auth_source'
         'ssl': False,
     },
@@ -193,7 +193,7 @@ SEARCH_ENGINE = "search.meilisearch.MeilisearchEngine"
 MEILISEARCH_ENABLED = True
 MEILISEARCH_URL = "http://localhost:7700"
 MEILISEARCH_PUBLIC_URL = "http://localhost:7700"
-MEILISEARCH_INDEX_PREFIX = os.environ.get("MEILISEARCH_INDEX_PREFIX", "openedx_")
+MEILISEARCH_INDEX_PREFIX = os.environ["MEILISEARCH_INDEX_PREFIX"]
 MEILISEARCH_API_KEY = hmac.new(
     os.environ["MEILI_MASTER_KEY"].encode(),
     os.environ["MEILISEARCH_API_KEY_UID"].encode(),
