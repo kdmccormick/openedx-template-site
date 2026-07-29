@@ -62,14 +62,15 @@ DATABASES = {
 
 # --- MongoDB --------------------------------------------------------------
 # Override the platform defaults (which connect to 'edxapp' with no auth).
-# The compose MongoDB service uses MONGO_USER as its root/only user
-# (MONGO_INITDB_ROOT_USERNAME), stored in the admin db.
+# The compose MongoDB service's root/only user is its MONGO_INITDB_ROOT_USERNAME
+# (see env_vars for why we use the image's own variable names), stored in the
+# admin db.
 DOC_STORE_CONFIG = {
     'host': os.environ['MONGO_HOST'],
     'port': int(os.environ['MONGO_PORT']),
-    'db': os.environ['MONGO_DATABASE'],
-    'user': os.environ['MONGO_USER'],
-    'password': os.environ['MONGO_PASSWORD'],
+    'db': os.environ['MONGO_INITDB_DATABASE'],
+    'user': os.environ['MONGO_INITDB_ROOT_USERNAME'],
+    'password': os.environ['MONGO_INITDB_ROOT_PASSWORD'],
     'authSource': 'admin',  # camelCase: mongo_utils.py pops+discards 'auth_source'
     'collection': 'modulestore',
     'replicaSet': '',
@@ -99,9 +100,9 @@ CONTENTSTORE = {
     'OPTIONS': {
         'host': os.environ['MONGO_HOST'],
         'port': int(os.environ['MONGO_PORT']),
-        'db': os.environ['MONGO_DATABASE'],
-        'user': os.environ['MONGO_USER'],
-        'password': os.environ['MONGO_PASSWORD'],
+        'db': os.environ['MONGO_INITDB_DATABASE'],
+        'user': os.environ['MONGO_INITDB_ROOT_USERNAME'],
+        'password': os.environ['MONGO_INITDB_ROOT_PASSWORD'],
         'authSource': 'admin',  # camelCase: mongo_utils.py pops+discards 'auth_source'
         'ssl': False,
     },
