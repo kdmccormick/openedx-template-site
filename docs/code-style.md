@@ -56,7 +56,42 @@ Failure modes this is correcting, both of them mine:
   changes made here after the volume was already initialised" is more exactly
   true than "re-applies them on every run" and communicates less.
 
-**The exception**: keep the sentence that stops someone from reintroducing a bug.
-A comment earns its length when it documents a silent failure or a trap that the
-obvious refactor walks straight into — those aren't re-derivable from the code,
-because the code is exactly what looks fine.
+## The "why" goes in the commit message
+
+Don't tell the story of a bugfix in a comment. The commit message already tells
+it, and `git blame` leads any curious reader there. A comment's job is to nudge
+the average reader in the right direction — a clause, not a paragraph.
+
+> "consider that your git commit message already does a good job of explaining the
+> bug that we fixed. so, rather than trying to tell the story of the bugfix here,
+> try to just explain the thing that would nudge the average reader in the right
+> direction. if they want to hear the full story, they'll git-blame and see your
+> commit. [...] i don't like a codebase littered with `# We did X because it stops
+> Y from breaking we do Z` except in cases where that's reaallly necessary (and if
+> that's necessary all over the place, then the codebase is probably spaghetti)"
+> — [#1](https://github.com/kdmccormick/openedx-template-site/pull/1)
+
+This replaced an earlier carve-out of mine — "keep the sentence that stops someone
+reintroducing a bug" — so don't re-propose it. Even for a trap that fails
+silently, the nudge survives and the story doesn't:
+
+```
+# Keep the MONGO_INITDB_* names: compose can't interpolate `${...}` from an
+# env_file, so renaming them silently leaves mongo with no auth.
+```
+
+not
+
+```
+# Don't rename these to something friendlier: compose can only interpolate
+# `${...}` from the host environment, never from an env_file, so relaying them
+# under different names via `environment:` silently yields empty strings and
+# mongo comes up with no auth at all.
+```
+
+Both steer the reader away from the same trap. Only the first respects that they
+have somewhere else to look.
+
+**Corollary worth taking seriously**: if a codebase seems to *need*
+because-comments everywhere, that's evidence about the design, not a licence to
+write more of them.
