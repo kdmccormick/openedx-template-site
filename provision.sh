@@ -28,7 +28,8 @@ do
 done
 echo "MySQL is up and running"
 
-# Create openedx-platform database and db user
+# Create openedx-platform database and db user.
+# Redundant with the mysql image's entrypoint, but picks up later env_vars changes.
 mysql_as_root -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;"
 mysql_as_root -e "CREATE USER IF NOT EXISTS '$MYSQL_USER';"
 mysql_as_root -e "ALTER USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';"
@@ -37,8 +38,8 @@ mysql_as_root -e "GRANT ALL ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%';"
 mongo_as_user() {
 	docker compose exec mongo mongosh \
 		--quiet \
-		--username "$MONGO_USER" \
-		--password "$MONGO_PASSWORD" \
+		--username "$MONGO_INITDB_ROOT_USERNAME" \
+		--password "$MONGO_INITDB_ROOT_PASSWORD" \
 		--authenticationDatabase admin \
 		"$@"
 }

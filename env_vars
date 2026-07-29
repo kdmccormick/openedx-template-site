@@ -1,11 +1,16 @@
 # Environment variables for this repo.
 # NOT SAFE FOR PRODUCTION. THIS IS JUST A DEV ENV FOR NOW. @@TODO
 #
-# Plain KEY=VALUE lines and comments only, so this file works both as a docker
-# compose `env_file` and as something `env` can source. Don't add `export` or
-# shell logic here -- put that in `env`.
+# Plain KEY=VALUE lines and comments only: docker compose reads this as an
+# `env_file`, and `env` sources it as a shell script. An `export` or any shell
+# logic would break the compose side, so put those in `env`.
 
-# MySQL
+# MySQL. Three consumers:
+#  1. compose.yml passes these to the official mysql image's entrypoint, which
+#     initializes the db and user when the data volume is empty.
+#  2. provision.sh re-applies them on every run.
+#  3. our dev settings overrides build DATABASES from them.
+# MYSQL_ROOT_* is just for our own scripts (provision.sh, sqlshell.sh).
 MYSQL_HOST=127.0.0.1
 MYSQL_PORT=3306
 MYSQL_DATABASE=openedx
@@ -14,35 +19,36 @@ MYSQL_PASSWORD=password
 MYSQL_ROOT_USERNAME=root
 MYSQL_ROOT_PASSWORD=password
 
-# MongoDB
+# MongoDB. Same three consumers as MySQL.
+# Note: the official mongo entrypoint only recognizes these MONGO_INITDB_* names.
+# Renaming them would start mongo with no auth at all -- quietly, and dangerously.
 MONGO_HOST=127.0.0.1
 MONGO_PORT=27017
-MONGO_DATABASE=openedx
-MONGO_USER=openedx
-MONGO_PASSWORD=password
+MONGO_INITDB_DATABASE=openedx
+MONGO_INITDB_ROOT_USERNAME=openedx
+MONGO_INITDB_ROOT_PASSWORD=password
 
 # Config yamls, relative to openedx-platform or openedx-template-site root.
 LMS_CFG=../openedx-platform/lms/envs/minimal.yml
 CMS_CFG="$LMS_CFG"
 
-# CMS (Studio) SSO OAuth2 client. Studio authenticates against the LMS via
-# social-auth (edx-oauth2). These must match between the DOT application
-# created in the LMS (see provision.sh) and the CMS settings that present them.
+# CMS (Studio) SSO OAuth2 client. Studio authenticates users against the LMS via
+# social-auth (edx-oauth2), so these must match the DOT application that
+# provision.sh creates in the LMS. A mismatch would break Studio login.
 CMS_SSO_OAUTH2_KEY=cms-sso-dev
 CMS_SSO_OAUTH2_SECRET=cms-sso-dev-secret
 
-# Meilisearch (Studio/course search). MEILI_* are read by the meilisearch
-# container (see compose.yml); the settings derive the backend API key's value
-# from MEILI_MASTER_KEY + the fixed key UID (Meilisearch derives key values
-# deterministically from those), and provision.sh creates that key.
+# Meilisearch (Studio/course search). The container reads MEILI_* (see
+# compose.yml). Meilisearch derives a key's value from the master key + key UID,
+# so our settings compute MEILISEARCH_API_KEY instead of storing it.
 MEILI_MASTER_KEY=openedx-insecure-meilisearch-master-key
 MEILI_NO_ANALYTICS=true
 MEILISEARCH_API_KEY_UID=a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d
 MEILISEARCH_INDEX_PREFIX=openedx_
 
-# Default django settings to LMS dev.
-# Override it to DJANGO_SETTINGS_MODULE=openedx_site.settings_cms_dev for CMS
-# @@TODO in the future, default to this to prod, not dev.
+# Django settings module. Defaults to LMS dev; `env_cms` switches it to
+# openedx_site.settings_cms_dev for CMS/Studio commands.
+# @@TODO default to prod, not dev.
 DJANGO_SETTINGS_MODULE=openedx_site.settings_lms_dev
 
 # Static asset collection dir.

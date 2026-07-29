@@ -19,6 +19,7 @@ a work-in-progress *project*.
 * In settings overrides, read/write feature toggles as **top-level settings** (`ENABLE_FOO = True`), never `FEATURES["ENABLE_FOO"]` — the latter is deprecated and support will be removed. The two are kept equivalent/live-synced by `FEATURES = FeaturesProxy(globals())` near the top of each root settings module; don't remove that line.
 * Don't test things out unless asked. When asked, source `env` (loads `env_vars` and activates `.venv`). Each shell invocation is fresh and shell state does NOT persist between commands, so prefix every `./manage.py` (or other env-dependent) call with it in the *same* command, e.g. `source env && ./manage.py ...`. Without it, `DJANGO_SETTINGS_MODULE` is unset and manage.py errors with "could not determine system for settings".
   * For CMS/Studio management commands, source `env_cms` instead of `env` (same as `env` except it switches `DJANGO_SETTINGS_MODULE` to `openedx_site.settings_cms_dev`). LMS is the default.
+* Add defaults in exactly *one* place. For example, if shell environment var has default defined in env\_vars and you're loading it into a django setting within one of the openedx\_site/settings files, then don't redundantly do `os.environ.get('ENV_VAR_NAME', spurious_default)`. The ENV\_VAR is always present and spurious\_default is never used and thus subject to drift. Just do `os.environ['ENV_VAR_NAME']`. Follow a similar philosophy for other configuration points, too.
 * When you learn something significant that doesn't fit in a code comment, write it up in `docs/`.
 * Read `docs/code-style.md` before writing code. It's Kyle's taste as a software engineer,
   accumulated from PR review, and it grows every time he gives feedback.
@@ -75,6 +76,28 @@ defaults a fork's PR base to the *network root* — so a bare `gh pr create` wou
 request against **feanil's** repo. `gh repo set-default kdmccormick/openedx-template-site` is
 configured to prevent that, but don't rely on it; be explicit every time.
 
+**PR description.** Always these three sections, and re-check them on every push so the
+description never describes an older version of the branch:
+
+```markdown
+## Description
+
+Title line, ≤100 chars, matching the PR title.
+
+The body wraps hard at 80 chars, because this section gets used verbatim as the
+squash commit message. Write it as a commit message, not as a note to Kyle.
+
+## Details
+
+Optional. Things that shouldn't outlive the PR: links to related work, merge
+order, open questions. Empty is fine -- don't pad it.
+
+## Testing
+
+How you manually tested. "N/A" and "did not manually test" are both fine, honest
+answers; a vague implication that you did is not.
+```
+
 **Scope of GitHub access.** You have the `kylemakor-ai` account's full access, restricted by this
 rule rather than by permissions: **interact with, and open PRs on, repos owned by `kdmccormick`
 or `kylemakor-ai`, and nothing else.** No PRs, issues, comments, reactions, or stars on any other
@@ -108,3 +131,6 @@ this should fire automatically.
   how much abstraction is too much — add it to `docs/code-style.md` so it compounds instead of
   being relitigated every PR. Apply it to the whole diff, not only the lines Kyle flagged; he's
   pointing at an instance of a pattern, not filing one-off nitpicks.
+* Commit those doc updates **to the working branch**, in the PR under review. Don't open a
+  second PR for them — that just makes Kyle jump back and forth. The code change and the
+  learning it produced belong together.

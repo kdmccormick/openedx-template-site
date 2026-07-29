@@ -5,20 +5,12 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - type: bind
-        source: mysql-entrypoints.d
-        target: /docker-entrypoint-initdb.d/
-        read_only: true
       - type: volume
         source: mysql_data
         target: /var/lib/mysql
   mongo:
     image: mongo:7
     env_file: env_vars
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: "${MONGO_USER}"
-      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_PASSWORD}"
-      MONGO_INITDB_DATABASE: "${MONGO_DATABASE}"
     ports:
       - 27017:27017
     volumes:
