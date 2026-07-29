@@ -19,10 +19,9 @@ MYSQL_PASSWORD=password
 MYSQL_ROOT_USERNAME=root
 MYSQL_ROOT_PASSWORD=password
 
-# MongoDB. Same three consumers as MySQL.
-# Keep the MONGO_INITDB_* names: compose can only interpolate `${...}` from the
-# host environment, not from an env_file, so renaming them and relaying via
-# `environment:` yields empty strings, and mongo starts with no auth.
+# MongoDB. Same three consumers as MySQL. Keep the MONGO_INITDB_* names: compose
+# can't interpolate `${...}` from an env_file, so renaming them silently leaves
+# mongo with no auth.
 MONGO_HOST=127.0.0.1
 MONGO_PORT=27017
 MONGO_INITDB_DATABASE=openedx
