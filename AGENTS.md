@@ -101,6 +101,9 @@ this should fire automatically.
 * Address feedback with **new commits pushed on top**, not a force-push: review threads stay
   anchored to their lines and Kyle can see just what changed since he looked. Squash at merge.
 * Don't resolve review threads yourself. The reviewer decides when a comment is settled.
+* Say your piece on GitHub, not twice. Kyle reads the PR, so report back in chat with just
+  "Responded to review on \<links\>" / "Nothing to respond to" / "Blocked by questions on
+  \<links\>". Don't re-summarize what the comments already say.
 * When feedback is about *taste* rather than this one diff — naming, comment density, structure,
   how much abstraction is too much — add it to `docs/code-style.md` so it compounds instead of
   being relitigated every PR. Apply it to the whole diff, not only the lines Kyle flagged; he's
