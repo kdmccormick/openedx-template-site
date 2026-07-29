@@ -76,6 +76,28 @@ defaults a fork's PR base to the *network root* — so a bare `gh pr create` wou
 request against **feanil's** repo. `gh repo set-default kdmccormick/openedx-template-site` is
 configured to prevent that, but don't rely on it; be explicit every time.
 
+**PR description.** Always these three sections, and re-check them on every push so the
+description never describes an older version of the branch:
+
+```markdown
+## Description
+
+Title line, ≤100 chars, matching the PR title.
+
+The body wraps hard at 80 chars, because this section gets used verbatim as the
+squash commit message. Write it as a commit message, not as a note to Kyle.
+
+## Details
+
+Optional. Things that shouldn't outlive the PR: links to related work, merge
+order, open questions. Empty is fine -- don't pad it.
+
+## Testing
+
+How you manually tested. "N/A" and "did not manually test" are both fine, honest
+answers; a vague implication that you did is not.
+```
+
 **Scope of GitHub access.** You have the `kylemakor-ai` account's full access, restricted by this
 rule rather than by permissions: **interact with, and open PRs on, repos owned by `kdmccormick`
 or `kylemakor-ai`, and nothing else.** No PRs, issues, comments, reactions, or stars on any other
