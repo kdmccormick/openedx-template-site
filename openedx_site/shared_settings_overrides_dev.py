@@ -62,9 +62,7 @@ DATABASES = {
 
 # --- MongoDB --------------------------------------------------------------
 # Override the platform defaults (which connect to 'edxapp' with no auth).
-# The compose MongoDB service's root/only user is its MONGO_INITDB_ROOT_USERNAME
-# (see env_vars for why we use the image's own variable names), stored in the
-# admin db.
+# Mongo's root/only user lives in the admin db (see env_vars re: MONGO_INITDB_*).
 DOC_STORE_CONFIG = {
     'host': os.environ['MONGO_HOST'],
     'port': int(os.environ['MONGO_PORT']),

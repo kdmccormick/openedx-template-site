@@ -29,10 +29,8 @@ done
 echo "MySQL is up and running"
 
 # Create openedx-platform database and db user.
-# NOTE: This is redundant with the official mysql image entrypoint,
-# which does all this upon instantiation of the volume. Keeping it here as
-# no-op documentation, and to reconcile env_vars changes made after the
-# volume was already initialised.
+# Redundant with the mysql image's entrypoint on a fresh volume, but re-applies
+# any env_vars changes made after that.
 mysql_as_root -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;"
 mysql_as_root -e "CREATE USER IF NOT EXISTS '$MYSQL_USER';"
 mysql_as_root -e "ALTER USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';"

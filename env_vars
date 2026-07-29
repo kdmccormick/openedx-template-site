@@ -5,16 +5,12 @@
 # compose `env_file` and as something `env` can source. Don't add `export` or
 # shell logic here -- put that in `env`.
 
-# MySQL. Three consumers read these names:
-#  1. the official mysql image's entrypoint, which creates MYSQL_DATABASE and
-#     MYSQL_USER/MYSQL_PASSWORD -- but only while the datadir is empty, so once
-#     per volume, not per container (compose.yml passes this file as env_file);
-#  2. provision.sh, which reconciles the same objects on every run, covering
-#     changes made here after the volume was already initialised;
-#  3. our Django settings overrides (shared_settings_overrides_dev.py), which
-#     build DATABASES from them.
-# MYSQL_ROOT_* is ours alone (provision.sh, sqlshell.sh); the image's own name
-# for the password is MYSQL_ROOT_PASSWORD, which is why it's spelled that way.
+# MySQL. Three consumers:
+#  1. compose.yml passes these to the official mysql image's entrypoint, which
+#     initializes the db and user when the data volume is empty.
+#  2. provision.sh, which re-applies them on every run.
+#  3. our dev settings overrides, which build DATABASES.
+# MYSQL_ROOT_* is just for our own scripts (provision.sh, sqlshell.sh).
 MYSQL_HOST=127.0.0.1
 MYSQL_PORT=3306
 MYSQL_DATABASE=openedx
@@ -23,14 +19,10 @@ MYSQL_PASSWORD=password
 MYSQL_ROOT_USERNAME=root
 MYSQL_ROOT_PASSWORD=password
 
-# MongoDB. Same three consumers as MySQL above: the mongo image's entrypoint
-# creates the root user from MONGO_INITDB_* (once per volume), provision.sh and
-# mongoshell.sh authenticate with them, and the settings overrides build
-# DOC_STORE_CONFIG/CONTENTSTORE from them.
-# Don't rename these to something friendlier: compose can only interpolate
-# `${...}` from the host environment, never from an env_file, so relaying them
-# under different names via `environment:` silently yields empty strings and
-# mongo comes up with no auth at all.
+# MongoDB. Same three consumers as MySQL.
+# Keep the MONGO_INITDB_* names: compose can only interpolate `${...}` from the
+# host environment, not from an env_file, so renaming them and relaying via
+# `environment:` yields empty strings, and mongo starts with no auth.
 MONGO_HOST=127.0.0.1
 MONGO_PORT=27017
 MONGO_INITDB_DATABASE=openedx
