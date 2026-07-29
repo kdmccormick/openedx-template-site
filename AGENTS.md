@@ -109,3 +109,6 @@ this should fire automatically.
   how much abstraction is too much — add it to `docs/code-style.md` so it compounds instead of
   being relitigated every PR. Apply it to the whole diff, not only the lines Kyle flagged; he's
   pointing at an instance of a pattern, not filing one-off nitpicks.
+* Commit those doc updates **to the working branch**, in the PR under review. Don't open a
+  second PR for them — that just makes Kyle jump back and forth. The code change and the
+  learning it produced belong together.

@@ -76,8 +76,8 @@ reintroducing a bug" — so don't re-propose it. Even for a trap that fails
 silently, the nudge survives and the story doesn't:
 
 ```
-# Keep the MONGO_INITDB_* names: compose can't interpolate `${...}` from an
-# env_file, so renaming them silently leaves mongo with no auth.
+# Note: the official mongo entrypoint only recognizes these MONGO_INITDB_* names.
+# Renaming them would start mongo with no auth at all -- quietly, and dangerously.
 ```
 
 not
@@ -95,3 +95,28 @@ have somewhere else to look.
 **Corollary worth taking seriously**: if a codebase seems to *need*
 because-comments everywhere, that's evidence about the design, not a licence to
 write more of them.
+
+## Hazards are conditional, not historical
+
+Write what *would* happen to a reader who changes this, not what *did* happen to
+whoever wrote it. "Renaming these would start mongo with no auth" — not "renaming
+these yields empty strings and mongo comes up with no auth," which quietly casts
+the reader as a witness to a bug they never saw.
+
+> "note how we are condition tense 'doing X *would cause* Y' rather than present
+> tense 'doing X *causes* Y'. i need you to write with empathy for other
+> developers: they are not you, so their lived experience is not that X _caused_ Y."
+> — [#1](https://github.com/kdmccormick/openedx-template-site/pull/1)
+
+This is the same instinct as the entry above, caught one level deeper. Present
+tense is how the bug felt to the person who hit it. The next reader is not
+debugging anything — they're considering an edit — so the useful framing is a
+hypothetical consequence of *their* action:
+
+* "would leave", "would break", "would put X in Y mode" — the hazard as they'd
+  meet it
+* not "yields", "comes up with", "silently disables" — the hazard as I met it
+
+Applies beyond bug hazards: any comment stating a constraint reads better as what
+breaking it would cost than as a war story. "A mismatch would break Studio login"
+does more than a paragraph on how the mismatch was discovered.
