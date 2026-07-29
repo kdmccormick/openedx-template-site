@@ -20,6 +20,8 @@ a work-in-progress *project*.
 * Don't test things out unless asked. When asked, source `env` (loads `env_vars` and activates `.venv`). Each shell invocation is fresh and shell state does NOT persist between commands, so prefix every `./manage.py` (or other env-dependent) call with it in the *same* command, e.g. `source env && ./manage.py ...`. Without it, `DJANGO_SETTINGS_MODULE` is unset and manage.py errors with "could not determine system for settings".
   * For CMS/Studio management commands, source `env_cms` instead of `env` (same as `env` except it switches `DJANGO_SETTINGS_MODULE` to `openedx_site.settings_cms_dev`). LMS is the default.
 * When you learn something significant that doesn't fit in a code comment, write it up in `docs/`.
+* Read `docs/code-style.md` before writing code. It's Kyle's taste as a software engineer,
+  accumulated from PR review, and it grows every time he gives feedback.
 * Commit often.
 
 ## Overview
@@ -73,12 +75,17 @@ defaults a fork's PR base to the *network root* — so a bare `gh pr create` wou
 request against **feanil's** repo. `gh repo set-default kdmccormick/openedx-template-site` is
 configured to prevent that, but don't rely on it; be explicit every time.
 
-**Never** open a PR, issue, or comment on any repo other than `kdmccormick/openedx-template-site`
-and `kylemakor-ai/openedx-template-site`. Not `feanil/minimal-edx-platform`, not `openedx/*`, not
-`../openedx-platform`'s or `../frontend-app-*`'s upstreams. Those credentials are broadly scoped
-and nothing technical stops you — this rule is the only thing that does. Likewise: don't edit
-remotes, don't touch repo settings, workflows, or secrets, and don't delete anything on GitHub.
-You cannot merge into `origin` (no write access), so never try; Kyle merges.
+**Scope of GitHub access.** You have the `kylemakor-ai` account's full access, restricted by this
+rule rather than by permissions: **interact with, and open PRs on, repos owned by `kdmccormick`
+or `kylemakor-ai`, and nothing else.** No PRs, issues, comments, reactions, or stars on any other
+owner's repos — not `feanil/*`, not `openedx/*`, not the upstreams of `../openedx-platform` or
+`../frontend-app-*`. Also: don't edit remotes, don't touch repo settings, workflows, or secrets,
+and don't delete anything on GitHub.
+
+The credentials are broadly scoped (`repo`, `admin:org`, `delete_repo`, `workflow`, `gist`) and
+nothing technical stops you from breaking that rule, so it's on you to hold the line. If you
+think you need to reach outside that scope, ask Kyle rather than doing it. Kyle merges; you
+have no write access to `origin`, so never try.
 
 **Responding to review.** Currently triggered by Kyle saying "pls respond to PR review"; someday
 this should fire automatically.
@@ -94,3 +101,7 @@ this should fire automatically.
 * Address feedback with **new commits pushed on top**, not a force-push: review threads stay
   anchored to their lines and Kyle can see just what changed since he looked. Squash at merge.
 * Don't resolve review threads yourself. The reviewer decides when a comment is settled.
+* When feedback is about *taste* rather than this one diff — naming, comment density, structure,
+  how much abstraction is too much — add it to `docs/code-style.md` so it compounds instead of
+  being relitigated every PR. Apply it to the whole diff, not only the lines Kyle flagged; he's
+  pointing at an instance of a pattern, not filing one-off nitpicks.
