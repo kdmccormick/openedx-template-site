@@ -21,5 +21,6 @@ src/i18n/site-messages/index.ts
 ### Editors ###
 .DS_Store
 *~
+*.swp
 /temp
 /.vscode
