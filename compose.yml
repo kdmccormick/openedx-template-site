@@ -1,9 +1,12 @@
+# Datastore ports bind to 127.0.0.1. Dropping that prefix would expose them to
+# the internet, where the dev-only credentials in env_vars are no protection.
+# To reach one from another host, tunnel over SSH.
 services:
   mysql:
     image: mysql:8.4
     env_file: env_vars
     ports:
-      - 3306:3306
+      - 127.0.0.1:3306:3306
     volumes:
       - type: volume
         source: mysql_data
@@ -12,7 +15,7 @@ services:
     image: mongo:7
     env_file: env_vars
     ports:
-      - 27017:27017
+      - 127.0.0.1:27017:27017
     volumes:
       - type: volume
         source: mongo_data
@@ -24,12 +27,12 @@ services:
   memcache:
     image: memcached
     ports:
-      - 11211:11211
+      - 127.0.0.1:11211:11211
   meilisearch:
     image: getmeili/meilisearch:v1.8.4
     env_file: env_vars
     ports:
-      - 7700:7700
+      - 127.0.0.1:7700:7700
 
 volumes:
   mysql_data:

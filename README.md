@@ -37,10 +37,16 @@ docker compose down  # if you're done
 # Whenever you want to run it:
 # In four different shells:
 docker compose up
-./manage.py runserver  # LMS
-(source env_cms && ./manage.py runserver) # CMS
+./manage.py runserver 8000  # LMS
+(source env_cms && ./manage.py runserver 8001) # CMS
 (cd frontend && npm dev:packages)  # Frontends
 ```
+
+The LMS serves `http://local.openedx.io:8000` and Studio serves
+`http://studio.local.openedx.io:8001`; pass the ports explicitly, since
+`runserver` would otherwise put both on 8000. Those hostnames resolve to
+127.0.0.1, so browse from the machine running the site, or forward the two ports
+over SSH.
 
 ## Operating your site with Open edX Site Buddy
 
