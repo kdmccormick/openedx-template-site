@@ -16,7 +16,7 @@ uv venv --python python3.12
 source ./env
 
 # Install backend base+dev python deps
-uv sync . --extra development
+uv sync --extra development
 
 # Set up new frontends
 git clone git@github.com:openedx/frontend-template-site frontend

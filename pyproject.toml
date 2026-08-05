@@ -13,6 +13,7 @@ dependencies = [
     # we have to re-specify it here to ensure that we get setuptools<=81
     # (before pkg_resources was removed).
     "setuptools<82",
+    "xblocks-contrib",
 ]
 
 [project.optional-dependencies]
@@ -23,5 +24,11 @@ development = [
 [tool.setuptools.packages.find]
 include = ["openedx_site*"]
 
+[tool.uv]
+# openedx-platform pins xblocks-contrib to a released version, which the local
+# checkout wouldn't satisfy. Overriding it drops that pin.
+override-dependencies = ["xblocks-contrib"]
+
 [tool.uv.sources]
 openedx-platform = { path = "../openedx-platform", editable = true }
+xblocks-contrib = { path = "../xblocks-core", editable = true }
