@@ -41,6 +41,11 @@ LOGIN_REDIRECT_WHITELIST += MFE_HOSTS
 # the MFEs; whether an MFE happens to be running is a separate concern.)
 _MFE = "http://apps.local.openedx.io"
 
+# Devstack sets MKTG_URLS['ROOT'] = 'http://localhost:8080'. The branding index
+# view redirects there if ROOT differs from LMS_ROOT_URL, bypassing MFE routing.
+# Neutralize it so unauthenticated users fall through to the normal LMS flow.
+MKTG_URLS["ROOT"] = LMS_ROOT_URL
+
 # Authn and learner-dashboard are served by frontend-base (the shell app) on
 # :8080 rather than their own standalone devservers.
 #
@@ -48,12 +53,12 @@ _MFE = "http://apps.local.openedx.io"
 # page. The redirect is gated on this toggle (see user_authn/toggles.py:
 # should_redirect_to_authn_microfrontend).
 ENABLE_AUTHN_MICROFRONTEND = True
-AUTHN_MICROFRONTEND_URL = f"{_MFE}:8080/authn/"
+AUTHN_MICROFRONTEND_URL = f"{_MFE}:8080/authn"
 AUTHN_MICROFRONTEND_DOMAIN = "apps.local.openedx.io/authn"
 
-ACCOUNT_MICROFRONTEND_URL = f"{_MFE}:1997/account/"
-PROFILE_MICROFRONTEND_URL = f"{_MFE}:1995/profile/u/"
-LEARNER_HOME_MICROFRONTEND_URL = f"{_MFE}:8080/learner-dashboard/"
+ACCOUNT_MICROFRONTEND_URL = f"{_MFE}:1997/account"
+PROFILE_MICROFRONTEND_URL = f"{_MFE}:1995/profile"
+LEARNER_HOME_MICROFRONTEND_URL = f"{_MFE}:8080/learner-dashboard"
 COMMUNICATIONS_MICROFRONTEND_URL = f"{_MFE}:1984/communications"
 DISCUSSIONS_MICROFRONTEND_URL = f"{_MFE}:2002/discussions"
 DISCUSSIONS_MFE_FEEDBACK_URL = None
@@ -100,6 +105,13 @@ MFE_CONFIG.update({
     "ENABLE_LEGACY_LIBRARY_MIGRATOR": "true",
     "MEILISEARCH_ENABLED": "true",
 })
+
+# ENABLE_CSMH_EXTENDED=False (set in shared) makes the courseware.0011 migration
+# drop its dependency on coursewarehistoryextended, so we can safely remove the app.
+INSTALLED_APPS.remove("lms.djangoapps.coursewarehistoryextended")
+DATABASE_ROUTERS.remove(
+    "openedx.core.lib.django_courseware_routers.StudentModuleHistoryExtendedRouter"
+)
 
 # Disable enterprise integration. Without this, the post-login redirect calls
 # the Enterprise API at the devstack-default internal URL (localhost:18000),
