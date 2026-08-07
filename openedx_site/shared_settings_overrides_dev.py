@@ -123,6 +123,11 @@ def point_caches_at_memcache(caches):
             cache['LOCATION'] = [MEMCACHE_LOCATION]
 
 
+# No separate CSMH database; all DB aliases point at the same MySQL instance.
+# Disabling this flag removes the migration dependency on coursewarehistoryextended
+# and suppresses runtime writes to the extended table.
+ENABLE_CSMH_EXTENDED = False
+
 # --- Cross-cutting dev overrides ------------------------------------------
 # NOTE: this module runs in its own namespace and does NOT import the lms/cms
 # devstack settings, so it can only do *scalar assignments* here (the importing
@@ -184,7 +189,10 @@ MFE_ORIGINS = [
     "http://apps.local.openedx.io:2002",  # frontend-app-discussions
 ]
 MFE_HOSTS = [origin.split("//", 1)[1] for origin in MFE_ORIGINS]  # "host:port"
-CORS_ORIGIN_WHITELIST = list(MFE_ORIGINS)
+# The LMS and CMS themselves must be in the whitelist so that the cors_csrf
+# middleware trusts XBlock handler requests whose Referer is the LMS/CMS
+# origin (e.g. problem submissions from within an iframe).
+CORS_ORIGIN_WHITELIST = [LMS_ROOT_URL, CMS_ROOT_URL] + list(MFE_ORIGINS)
 
 # Course import unpacks the uploaded .tar.gz into a scratch dir under
 # GITHUB_REPO_ROOT (upstream default: ENV_ROOT/data, which doesn't exist here).

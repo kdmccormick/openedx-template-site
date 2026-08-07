@@ -50,6 +50,7 @@ FRONTEND_REGISTER_URL = LMS_ROOT_URL + "/register"
 # see shared_settings_overrides_dev.py. The MFE pulls its runtime config from
 # the LMS MFE config API, so its URLs are configured there.)
 COURSE_AUTHORING_MICROFRONTEND_URL = "http://apps.local.openedx.io:2001/authoring"
+CSRF_TRUSTED_ORIGINS.append(CMS_ROOT_URL)
 CSRF_TRUSTED_ORIGINS += MFE_ORIGINS
 LOGIN_REDIRECT_WHITELIST += MFE_HOSTS
 
