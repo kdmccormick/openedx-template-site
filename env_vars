@@ -28,6 +28,15 @@ MONGO_INITDB_DATABASE=openedx
 MONGO_INITDB_ROOT_USERNAME=openedx
 MONGO_INITDB_ROOT_PASSWORD=password
 
+# Memcached. Only consumer is our dev settings overrides; the port must match
+# the one compose.yml publishes.
+# Must be 127.0.0.1, not "localhost": compose publishes memcached on IPv4 only,
+# and pymemcache connects to just the first address getaddrinfo returns, which
+# is ::1 on a dual-stack box. The platform sets ignore_exc=True on every cache,
+# so a wrong address here fails silently rather than raising.
+MEMCACHE_HOST=127.0.0.1
+MEMCACHE_PORT=11211
+
 # Config yamls, relative to openedx-platform or openedx-template-site root.
 LMS_CFG=../openedx-platform/lms/envs/minimal.yml
 CMS_CFG="$LMS_CFG"

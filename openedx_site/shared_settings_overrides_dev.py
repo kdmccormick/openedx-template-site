@@ -109,6 +109,20 @@ CONTENTSTORE = {
 }
 
 
+# --- Memcached ------------------------------------------------------------
+# The platform hardcodes every memcached-backed cache to "localhost:11211";
+# point them at our env_vars address instead (see env_vars re: 127.0.0.1).
+# CACHES is a dict *mutation*, which this module can't do (see the note below),
+# so the root settings modules call this on their own CACHES.
+MEMCACHE_LOCATION = f"{os.environ['MEMCACHE_HOST']}:{os.environ['MEMCACHE_PORT']}"
+
+def point_caches_at_memcache(caches):
+    """Repoint every memcached-backed alias in `caches` at MEMCACHE_LOCATION."""
+    for cache in caches.values():
+        if 'memcached' in cache['BACKEND']:
+            cache['LOCATION'] = [MEMCACHE_LOCATION]
+
+
 # --- Cross-cutting dev overrides ------------------------------------------
 # NOTE: this module runs in its own namespace and does NOT import the lms/cms
 # devstack settings, so it can only do *scalar assignments* here (the importing

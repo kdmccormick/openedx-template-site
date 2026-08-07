@@ -19,6 +19,8 @@ SITE_NAME = LMS_BASE
 
 ROOT_URLCONF = "openedx_site.urls_lms"
 
+point_caches_at_memcache(CACHES)
+
 # Our provisioning app (data migrations for waffle flags etc.). Installed in
 # both LMS and CMS; the shared DB means each migration runs once.
 INSTALLED_APPS.append("openedx_site.openedx_provisioning")
