@@ -13,7 +13,6 @@ dependencies = [
     # we have to re-specify it here to ensure that we get setuptools<=81
     # (before pkg_resources was removed).
     "setuptools<82",
-    "xblocks-contrib",
 ]
 
 [project.optional-dependencies]
@@ -31,4 +30,3 @@ override-dependencies = ["xblocks-contrib"]
 
 [tool.uv.sources]
 openedx-platform = { path = "../openedx-platform", editable = true }
-xblocks-contrib = { path = "../xblocks-core", editable = true }
